@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auronuel</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="bg1">
+    <header class="header">
+      <nav class="navbar">
+        <h2 class="logo"><img src="images/auro.png" alt=""></h2>
+        <input type="checkbox" id="menu-toggle" />
+         <label for="menu-toggle" id="hamburger-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </label> 
+        <ul class="links">
+          <li><a href="#">Home</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#contact">Contact Us</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+        </ul>
+        <!-- <div class="buttons">
+          <a href="#" class="signin">Sign In</a>
+          <a href="#" class="signup">Sign Up</a>
+        </div> -->
+      </nav>
+    </header>
+    <section class="hero-section">
+      <div class="hero">
+        <h2>Web Development</h2>
+        <p>
+          Building Digital Dreams, One Line of Code at a Time.
+        </p>
+        <p>Let's Build Your Website Now</p>
+        <div class="buttons">
+          <a href="#contact" class="join">Get In Touch</a>
+          <a href="#pricing" class="learn">Pricing</a>
+        </div>
+      </div>
+      <div class="img">
+        <img src="images/we.png" alt="hero image" />
+      </div>
+      
+    </section>
+    <div class="center">
+      <div class="imageshow">
+          <div class="imageClass show">
+              <img src="images/hero-bg.png" alt="">
+              <div>Let's Build Your Website</div>
+          </div>
+          <div class="imageClass">
+              <img src="images\2.png" alt="">
+              <div>Get Your Business To The Next Level</div>
+          </div>
+          <div class="imageClass">
+              <img src="images\sdf.png" alt="">
+              <div>Reach The world</div>
+          </div>
+          </div>
+          <div>
+              <span class="dot" onclick="currentImage(1)"></span>
+              <span class="dot" onclick="currentImage(2)"></span>
+              <span class="dot" onclick="currentImage(3)"></span>
+          </div>
+  </div>
+</div>
+  <!-- About Section Start -->
+  <section class="about" id="about">
+    <div class="content">
+      <div class="title"><span>About Us</span></div>
+      <div class="about-details">
+        <div class="left">
+          <img src="Images/me.jpg" alt=""/>
+        </div>
+        <div class="right">
+          <div class="topic">Designing Is Our Passion</div>
+          <p>
+
+At Auronuel, we are passionate about building innovative, user-friendly, and responsive websites that help businesses thrive in the digital age. Our expert team of developers, designers, and digital strategists is dedicated to creating tailored solutions that meet the unique needs of each client. Whether you're a small startup or an established enterprise, we work with you to bring your vision to life.
+          </p>
+          <!-- <div class="button">
+            <button>Download CV</button>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- My Skill Section Start -->
+  <!-- Section Tag and Other Div will same where we need to put same CSS -->
+  <section class="skills" id="skills">
+    <div class="content">
+      <div class="title"><span>Skills</span></div>
+      <div class="skills-details">
+        <div class="text">
+          <div class="topic">Skills Reflects Our Knowledge</div>
+          <p>We're specialized in Web development and design using HTML, CSS, Javascript and PHP.</p>
+          <div class="experience">
+            <div class="num">5</div>
+            <div class="exp">
+              Years Of <br />
+              Experience
+            </div>
+          </div>
+        </div>
+        <div class="boxes">
+          <div class="box">
+            <div class="topic">HTML</div>
+            <div class="per">90%</div>
+          </div>
+          <div class="box">
+            <div class="topic">CSS</div>
+            <div class="per">80%</div>
+          </div>
+          <div class="box">
+            <div class="topic">JavScript</div>
+            <div class="per">70%</div>
+          </div>
+          <div class="box">
+            <div class="topic">PHP</div>
+            <div class="per">50%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- My Services Section Start -->
+  <section class="services" id="services">
+    <div class="content">
+      <div class="title"><span>Services</span></div>
+      <div class="boxes">
+        <div class="box">
+          <div class="icon">
+            <i class="fas fa-desktop"></i>
+          </div>
+          <div class="topic">Custom Web Devlopment</div>
+          <p>We provide comprehensive web development solutions, from building custom websites to developing complex web applications. Our team ensures your site is user-friendly, fast, and responsive across all devices, using the latest technologies to create a seamless online experience.</p>
+        </div>
+        <div class="box">
+          <div class="icon">
+            <i class="fas fa-paint-brush"></i>
+          </div>
+          <div class="topic">Website Design & User Experience (UX)</div>
+          <p>Our UX design services focus on creating intuitive, engaging, and effective user experiences. By understanding user needs and behaviors, we design interfaces that are not only aesthetically pleasing but also functional, ensuring that your product provides maximum value to its users. </p>
+        </div>
+        <div class="box">
+          <div class="icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="topic">Windows Installation</div>
+          <p>We offer expert Windows-related services, including installation, configuration, and troubleshooting. Whether it's optimizing performance, setting up secure environments, or providing technical support, our team ensures your Windows systems run smoothly and efficiently.</p>
+        </div>
+        <!--<div class="box">
+          <div class="icon">
+            <i class="fab fa-android"></i>
+          </div>
+          <div class="topic">Icon Design</div>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia autem quam odio, qui voluptatem
+            eligendi?</p>
+        </div>
+        <div class="box">
+          <div class="icon">
+            <i class="fas fa-camera-retro"></i>
+          </div>
+          <div class="topic">Photography</div>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia autem quam odio, qui voluptatem
+            eligendi?</p>
+        </div>
+        <div class="box">
+          <div class="icon">
+            <i class="fas fa-tablet-alt"></i>
+          </div>
+          <div class="topic">Apps Devlopment</div>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia autem quam odio, qui voluptatem
+            eligendi?</p>
+        </div> -->
+      </div>
+    </div>
+  </section>
+  <section class="free-web-dev-offer" id="pricing">
+    <div class="container">
+        <div class="title"><span>Pricing</span></div>
+        <h3> $0</h3> 
+        <h1>Limited offer</h1>
+        <h1>Get Your Website Developed for Free!</h1>
+        <p>Take advantage of this exclusive offer to have your website professionally designed and developed at no cost. Our expert team will work with you to create a stunning and functional site. Don't miss out – limited time only!</p>
+        <a href="#contact" class="cta-button">Contact Us Now</a>
+    </div>
+</section>
+<div class="working-hours-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Working Hours</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sunday - Thursday</td>
+        <td>8:00 AM - 8:00 PM</td>
+      </tr>
+      <tr>
+        <td>Friday</td>
+        <td>8:00 AM - 4:00 PM</td>
+      </tr>
+      <tr>
+        <td>Saturday</td>
+        <td>Closed</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+  <!-- Contact Me section Start -->
+  <section class="contact" id="contact">
+    <div class="content">
+      <div class="title"><span>Contact Us</span></div>
+      <div class="text">
+        <div class="topic">Have Any Project?</div>
+        <p>If you want to talk to us click below to WhatsApp or send an Email</p>
+        <div class="button">
+          <a href="https://wa.me/message/VMBKTE4KVIRYO1"><button>WhatsApp</button></a>
+          <a href="mailto:auronuel@gmail.com"><button>Email Us</button></a>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+
+  <!-- Footer Section Start -->
+  <footer>
+    <div class="text">
+      <h1>Other Social Links</h1>
+      <div><a href="https://www.facebook.com/profile.php?id=61557069962212"><img src="Images\fb.png" alt=""></a>
+      <a href="https://x.com/auronuel"><img src="images\x.png" alt=""></a>
+      <a href="https://t.me/auronuel"><img src="images\tele.png" alt=""></a>
+    </div><br>
+      <span><a href="#">Auronuel</a> | &#169; 2024 All Rights Reserved</span>
+    </div>
+  </footer>
+
+  <script src="index.js"></script>
+  </body>
+</html>
