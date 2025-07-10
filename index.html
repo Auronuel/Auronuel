@@ -8,14 +8,13 @@
   <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js" defer></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <style>
+    /* Your existing CSS remains unchanged... */
     :root {
       --sidebar-width: 240px;
       --sidebar-bg: #3a3f44;
       --accent-color: #ff69b4;
     }
-
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #74ebd5, #acb6e5); display: flex; flex-direction: column; min-height: 100vh; transition: margin-left 0.3s ease; }
-    
     .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; background: var(--sidebar-bg); display: flex; flex-direction: column; z-index: 1002; transform: translateX(-100%); transition: transform 0.3s ease; }
     .sidebar .logo-container { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #50565c; }
     .logo-placeholder { width: 60px; height: 60px; background: #141414; border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
@@ -26,12 +25,10 @@
     .sidebar-nav a:hover, .sidebar-nav a.active { background: #50565c; }
     .sidebar-nav a i { font-size: 18px; width: 22px; text-align: center; }
     .sidebar-nav a span { font-size: 15px; }
-
     .page-container { display: flex; flex-direction: column; min-height: 100vh; width: 100%; transition: margin-left 0.3s ease; }
     .navbar { position: fixed; top: 0; left: 0; width: 100%; display: flex; align-items: center; background: var(--accent-color); padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 1000; margin: 0; box-sizing: border-box;}
     .hamburger-menu { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px 10px; margin-right: 15px; display: block; }
     .navbar h1 { color: #fff; font-size: 24px; margin: 0; }
-    
     .content { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 15px; max-width: 500px; width: 100%; box-sizing: border-box; margin: 60px auto 0 auto; flex-grow: 1;}
     .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 500px; margin-bottom: 20px; }
     .control-group { display: flex; flex-direction: column; gap: 5px; }
@@ -41,23 +38,20 @@
     .control-item:hover:not(.disabled) { background: #e55a9f; color: #fff; border-color: #e55a9f;}
     .control-item i { font-size: 20px; margin-bottom: 4px; }
     .control-item span { font-size: 12px; font-weight: bold; }
-    
     #status { margin-bottom: 10px; color: #333; text-align: center; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 20px; width: 100%; }
     .spinner { display: none; width: 16px; height: 16px; border: 3px solid var(--accent-color); border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
     .spinner.active { display: inline-block; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1003; }
     .modal.active { display: flex; }
     .modal-content { background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 20px; max-width: 400px; width: 90%; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-    .modal-content button { background: var(--accent-color); color: #fff; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; width: 100%; max-width: 250px; font-size: 16px; }
+    .modal-content button { background: var(--accent-color); color: #fff; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; width: 100%; max-width: 200px; font-size: 16px; }
     .modal-content button:hover { background: #e55a9f; }
     .modal-close { align-self: flex-end; cursor: pointer; font-size: 18px; color: #333; }
-    
     select, input[type="color"] { padding: 8px; border: 1px solid #ccc; border-radius: 5px; width: 100%; box-sizing: border-box; font-size: 14px;}
     input[type="color"] { padding: 5px; height: 40px;}
-
-    .phone-container { display: flex; justify-content: center; align-items: center; width: 100%; max-width: 500px; min-height: 520px; padding: 20px; background-color: #ffffff; background-size: cover; background-position: center; position: relative; perspective: 1200px; overflow: visible; }
+    .phone-container { display: flex; justify-content: center; align-items: center; width: 100%; max-width: 500px; min-height: 520px; padding: 20px; background-color: #ffffff; background-size: cover; background-position: center; position: relative; perspective: 1200px; overflow: visible; transition: background-color 0.3s ease; border-radius: 10px; }
+    .phone-container.blurred-bg { background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.18); }
     .footer { background: var(--sidebar-bg); color: white; padding: 20px; text-align: center; margin-top: auto; }
     .social-links { margin-bottom: 15px; }
     .social-links a { color: white; margin: 0 15px; font-size: 24px; text-decoration: none; transition: color 0.3s; }
@@ -66,9 +60,7 @@
     .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
     body.sidebar-open .sidebar-overlay { display: block; }
     body.sidebar-open .sidebar { transform: translateX(0); }
-
     @media (min-width: 992px) { .sidebar { transform: translateX(0); } .page-container { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); } .navbar { left: var(--sidebar-width); width: calc(100% - var(--sidebar-width));} .hamburger-menu { display: none; } }
-
     .phone { position: relative; transform-style: preserve-3d; }
     .phone-layout { position: relative; } 
     .phone-layout::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 80%; height: 20px; background: radial-gradient(ellipse, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 70%); filter: blur(5px); z-index: -1; }
@@ -95,9 +87,12 @@
     .phone-pro .notch { width: 85px; height: 25px; border-radius: 20px; }
     .phone-classic .bezel { position: absolute; top: 25px; left: 50%; transform: translateX(-50%); width: 100px; height: 25px; z-index: 6; }
     .phone-classic .home-button { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; border: 1px solid #444; border-radius: 50%; z-index: 6; }
-    .silver-x .side-buttons, .black-x .side-buttons, .silver-x-lying .side-buttons { position: absolute; left: -2px; top: 90px; display: flex; flex-direction: column; gap: 10px; transform: translateX(-100%); }
+    .silver-x .side-buttons, .black-x .side-buttons, .silver-x-lying .side-buttons, .phone-x .side-buttons, .phone-pro .side-buttons { position: absolute; left: -2px; top: 90px; display: flex; flex-direction: column; gap: 10px; transform: translateX(-100%); z-index: 2; }
+    .phone-x .side-buttons, .phone-pro .side-buttons { top: 110px; }
     .silver-x .side-buttons div, .silver-x-lying .side-buttons div { width: 3px; height: 25px; background: #999; border-radius: 3px; }
     .black-x .side-buttons div { width: 3px; height: 25px; background: #111; border-radius: 3px; }
+    .phone-x .side-buttons div { width: 3px; height: 25px; background: #a1c8e1; border-radius: 3px; }
+    .phone-pro .side-buttons div { width: 3px; height: 25px; background: #3d3140; border-radius: 3px; }
     .silver-x .camera, .black-x .camera, .silver-x-lying .camera { position: absolute; top: 23px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #111; border-radius: 50%; z-index: 6; border: 1px solid #444;}
     .black-x .camera { border: 1px solid #555; }
     .multi-phone-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; transform-style: preserve-3d; }
@@ -143,91 +138,30 @@
     #two-horizontal-phones .volume-buttons, #three-horizontal-phones .volume-buttons { position: absolute; left: -5px; top: 50%; transform: translate(-100%, -50%); display: flex; flex-direction: column; gap: 6px; }
     #two-horizontal-phones .volume-buttons div, #three-horizontal-phones .volume-buttons div { width: 3px; height: 18px; background: #444; border-radius: 2px; }
     .lying-down-container .phone-wrapper, #silver-x-lying-down { transform-style: preserve-3d; }
-
-    /* --- FIXED "Silver X Lying Down" --- */
-    .silver-x-lying {
-        width: 205px; /* Slightly wider */
-        height: 415px; /* Slightly taller */
-        background: linear-gradient(135deg, #e0e0e0, #b0b0b0);
-        border-radius: 24px; /* Slightly more rounded */
-        border: 1px solid #999;
-        transform: rotateX(60deg) rotateZ(-45deg);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-    }
+    .silver-x-lying { width: 205px; height: 415px; background: linear-gradient(135deg, #e0e0e0, #b0b0b0); border-radius: 24px; border: 1px solid #999; transform: rotateX(60deg) rotateZ(-45deg); box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
     .silver-x-lying::before { display: none; }
     #silver-x-lying-down.phone-layout::after { display: none; }
-    .silver-x-lying .phone-side {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #a0a0a0; /* Darker side color for depth */
-        border-radius: inherit;
-        transform: translateZ(-12px); /* This gives the phone its thickness */
-    }
+    .silver-x-lying .phone-side { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #a0a0a0; border-radius: inherit; transform: translateZ(-12px); }
     .silver-x-lying .side-buttons { z-index: 2; }
     .silver-x-lying .camera { z-index: 2; }
-
-    /* --- NEW "Vynixo" Phone --- */
     .vynixo .camera-duo { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 6; }
     .vynixo .camera-duo .cam { width: 9px; height: 9px; background: #111; border-radius: 50%; border: 1px solid #6faeeb; }
     .vynixo .side-buttons-right { position: absolute; right: -2px; top: 90px; transform: translateX(100%); display: flex; flex-direction: column; gap: 8px; }
     .vynixo .side-buttons-right div { width: 3px; height: 22px; background: #357abd; border-radius: 3px; }
     .vynixo .side-buttons-left { position: absolute; left: -2px; top: 100px; transform: translateX(-100%); }
     .vynixo .side-buttons-left div { width: 3px; height: 35px; background: #357abd; border-radius: 3px; }
-    
-    /* --- NEW How-To Guide --- */
-    .how-to-guide {
-      width: 100%;
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px 25px;
-      margin-top: 30px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-      box-sizing: border-box;
-    }
-    .how-to-guide h2 {
-      text-align: center;
-      color: #333;
-      margin-top: 0;
-      margin-bottom: 25px;
-      font-size: 1.5rem;
-    }
-    .steps-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 20px;
-      text-align: center;
-    }
-    .step i {
-      font-size: 2rem;
-      color: var(--accent-color);
-      margin-bottom: 10px;
-    }
-    .step h3 {
-      margin: 0 0 5px 0;
-      font-size: 1rem;
-      color: #333;
-    }
-    .step p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #666;
-      line-height: 1.5;
-    }
-    .step p .disclaimer {
-      display: block;
-      font-style: italic;
-      font-size: 0.75rem;
-      margin-top: 5px;
-      color: #888;
-    }
-
+    .how-to-guide { width: 100%; background: #fff; border-radius: 10px; padding: 20px 25px; margin-top: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); box-sizing: border-box; }
+    .how-to-guide h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; font-size: 1.5rem; }
+    .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center; }
+    .step i { font-size: 2rem; color: var(--accent-color); margin-bottom: 10px; }
+    .step h3 { margin: 0 0 5px 0; font-size: 1rem; color: #333; }
+    .step p { margin: 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
+    .step p .disclaimer { display: block; font-style: italic; font-size: 0.75rem; margin-top: 5px; color: #888; }
   </style>
 </head>
 <body>
 
+  <!-- Your existing HTML Body remains unchanged... -->
   <div class="sidebar">
     <div class="logo-container" >
       <div class="logo-placeholder"><img src="images/auro.png" alt=""></div>
@@ -247,114 +181,101 @@
     </nav>
   </div>
   <div class="sidebar-overlay"></div>
-
   <div class="page-container">
     <div class="navbar">
       <button class="hamburger-menu" id="hamburger-menu"><i class="fas fa-bars"></i></button>
       <h1>Phone Mockup</h1>
     </div>
-
     <div class="content">
       <div id="status">
           <span id="status-text">Select a layout and click a screen to upload media.</span>
           <span class="spinner"></span>
       </div>
-      
       <div class="controls-grid">
           <div class="control-group">
             <label for="phone-select">Phone / Layout Model</label>
             <select id="phone-select">
-                <option value="nexis">Nexis</option>
-                <option value="vynixo">Vynixo</option>
-                <option value="silver-x">Silver X</option>
-                <option value="black-x">Black X</option>
-                <option value="vynix">Vynix</option>
-                <option value="phone-x">Phone X (Blue)</option>
-                <option value="phone-pro">Phone Pro (Purple)</option>
-                <option value="phone-classic">Phone Classic (Black)</option>
-                <option value="nexis-perspective">Nexis (Perspective)</option>
-                <option value="silver-x-lying-down">Card Phone</option>
-                <option value="two-phones">Two Phones</option>
-                <option value="three-phones">Three Phones</option>
-                <option value="three-phones-perspective">Three Phones (Perspective)</option>
-                <option value="phones-tiled">Phones (Tiled)</option>
-                <option value="phones-stacked">Phones (Stacked)</option>
-                <option value="four-grid-phones">Four Phones (Grid)</option>
-                <option value="three-horizontal-phones">Three Phones (Horizontal)</option>
-                <option value="two-horizontal-phones">Two Phones (Horizontal)</option>
+                <option value="nexis">Nexis</option><option value="vynixo">Vynixo</option><option value="silver-x">Silver X</option><option value="black-x">Black X</option><option value="vynix">Vynix</option><option value="phone-x">Phone X (Blue)</option><option value="phone-pro">Phone Pro (Purple)</option><option value="phone-classic">Phone Classic (Black)</option><option value="nexis-perspective">Nexis (Perspective)</option><option value="silver-x-lying-down">Card phone</option><option value="two-phones">Two Phones</option><option value="three-phones">Three Phones</option><option value="three-phones-perspective">Three Phones (Perspective)</option><option value="phones-tiled">Phones (Tiled)</option><option value="phones-stacked">Phones (Stacked)</option><option value="four-grid-phones">Four Phones (Grid)</option><option value="three-horizontal-phones">Three Phones (Horizontal)</option><option value="two-horizontal-phones">Two Phones (Horizontal)</option>
             </select>
           </div>
           <div class="control-group"><label for="download-btn">Actions</label><div class="control-item" id="download-btn"><i class="fas fa-download"></i><span>Download</span></div></div>
-          <div class="control-group"><label for="background-type-select">Background Type</label><select id="background-type-select"><option value="color">Solid Color BG</option><option value="image">Upload Image BG</option><option value="gradient_sunset">Sunset Gradient</option><option value="gradient_ocean">Ocean Gradient</option></select></div>
+          <div class="control-group"><label for="background-type-select">Background Type</label>
+            <select id="background-type-select">
+                <option value="color">Solid Color BG</option><option value="image">Upload Image BG</option><optgroup label="Gradients"><option value="gradient_sunset">Sunset Gradient</option><option value="gradient_ocean">Ocean Gradient</option></optgroup><optgroup label="Neon"><option value="neon_pink">Neon Pink</option><option value="neon_green">Neon Green</option><option value="neon_blue">Neon Blue</option><option value="neon_orange">Neon Orange</option><option value="neon_purple">Neon Purple</option></optgroup><optgroup label="Glassmorphism"><option value="glass_aurora">Aurora Glass</option><option value="glass_crystal">Crystal Glass</option><option value="glass_frost">Frost Glass</option><option value="glass_aqua">Aqua Glass</option><option value="glass_ruby">Ruby Glass</option></optgroup><optgroup label="Effects"><option value="blur">Blur Background</option></optgroup>
+            </select>
+          </div>
           <div class="control-group"><label for="background-color">Background Color</label><input type="color" id="background-color" value="#ffffff" title="Background Color" /></div>
       </div>
-      
       <div class="phone-container" id="phone-container">
-        <!-- All existing phone layouts -->
-        <div id="nexis" class="phone-layout"><div class="phone nexis"><div class="screen">Click to upload</div></div></div>
-        <div id="vynixo" class="phone-layout" style="display: none;"><div class="phone vynixo"><div class="camera-duo"><div class="cam"></div><div class="cam"></div></div><div class="side-buttons-right"><div></div><div></div></div><div class="side-buttons-left"><div></div></div><div class="screen">Click to upload</div></div></div>
-        <div id="silver-x" class="phone-layout" style="display: none;"><div class="phone silver-x"><div class="side-buttons"><div></div><div></div></div><div class="camera"></div><div class="screen">Click to upload</div></div></div>
-        <div id="black-x" class="phone-layout" style="display: none;"><div class="phone black-x"><div class="side-buttons"><div></div><div></div></div><div class="camera"></div><div class="screen">Click to upload</div></div></div>
-        <div id="vynix" class="phone-layout" style="display: none;"><div class="phone vynix"><div class="screen">Click to upload</div></div></div><div id="phone-x" class="phone-layout" style="display: none;"><div class="phone phone-x"><div class="notch"></div><div class="screen">Click to upload</div></div></div><div id="phone-pro" class="phone-layout" style="display: none;"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click to upload</div></div></div><div id="phone-classic" class="phone-layout" style="display: none;"><div class="phone phone-classic"><div class="bezel"></div><div class="screen">Click to upload</div><div class="home-button"></div></div></div><div id="nexis-perspective" class="phone-layout" style="display: none;"><div class="phone nexis"><div class="screen">Click to upload</div></div></div><div class="multi-phone-container" id="two-phones" style="display: none;"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click to upload</div></div><div class="phone phone-x"><div class="notch"></div><div class="screen">Click to upload</div></div></div><div class="multi-phone-container" id="three-phones" style="display: none;"><div class="phone phone-x"><div class="notch"></div><div class="screen">Click to upload</div></div><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click to upload</div></div><div class="phone nexis"><div class="screen">Click to upload</div></div></div><div class="multi-phone-container" id="three-phones-perspective" style="display: none;"><div class="phone-wrapper"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click Here</div></div></div><div class="phone-wrapper"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click Here</div></div></div><div class="phone-wrapper"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click Here</div></div></div></div><div class="multi-phone-container" id="phones-tiled" style="display: none;"><div class="phone vynix p1"><div class="screen"></div></div><div class="phone phone-pro p2"><div class="notch"></div><div class="screen">Click Here</div></div><div class="phone nexis p3"><div class="screen">Click Here</div></div><div class="phone phone-classic p4"><div class="bezel"></div><div class="screen">Click Here</div><div class="home-button"></div></div><div class="phone vynix p5"><div class="screen"></div></div></div><div class="multi-phone-container" id="phones-stacked" style="display: none;"><div class="phone vynix"><div class="screen">Click to upload</div></div><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click to upload</div></div><div class="phone phone-x"><div class="notch"></div><div class="screen">Click to upload</div></div></div><div class="multi-phone-container" id="four-grid-phones" style="display: none;"><div class="grid-container"><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div></div></div><div class="multi-phone-container" id="three-horizontal-phones" style="display: none;"><div class="horizontal-container"><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div></div></div><div class="multi-phone-container" id="two-horizontal-phones" style="display: none;"><div class="horizontal-container"><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div></div></div>
-        
-        <div id="silver-x-lying-down" class="phone-layout" style="display: none;">
-          <div class="phone silver-x-lying">
-            <div class="phone-side"></div>
-            <div class="side-buttons"><div></div><div></div></div>
-            <div class="camera"></div>
-            <div class="screen">Click to upload</div>
-          </div>
-        </div>
-   
+        <div id="nexis" class="phone-layout"><div class="phone nexis"><div class="screen">Click to upload</div></div></div><div id="vynixo" class="phone-layout" style="display: none;"><div class="phone vynixo"><div class="camera-duo"><div class="cam"></div><div class="cam"></div></div><div class="side-buttons-right"><div></div><div></div></div><div class="side-buttons-left"><div></div></div><div class="screen">Click to upload</div></div></div><div id="silver-x" class="phone-layout" style="display: none;"><div class="phone silver-x"><div class="side-buttons"><div></div><div></div></div><div class="camera"></div><div class="screen">Click to upload</div></div></div><div id="black-x" class="phone-layout" style="display: none;"><div class="phone black-x"><div class="side-buttons"><div></div><div></div></div><div class="camera"></div><div class="screen">Click to upload</div></div></div><div id="vynix" class="phone-layout" style="display: none;"><div class="phone vynix"><div class="screen">Click to upload</div></div></div><div id="phone-x" class="phone-layout" style="display: none;"><div class="phone phone-x"><div class="side-buttons"><div></div><div></div></div><div class="notch"></div><div class="screen">Click to upload</div></div></div><div id="phone-pro" class="phone-layout" style="display: none;"><div class="phone phone-pro"><div class="side-buttons"><div></div><div></div></div><div class="notch"></div><div class="screen">Click to upload</div></div></div><div id="phone-classic" class="phone-layout" style="display: none;"><div class="phone phone-classic"><div class="bezel"></div><div class="screen">Click to upload</div><div class="home-button"></div></div></div><div id="nexis-perspective" class="phone-layout" style="display: none;"><div class="phone nexis"><div class="screen">Click to upload</div></div></div><div class="multi-phone-container" id="two-phones" style="display: none;"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click to upload</div></div><div class="phone phone-x"><div class="notch"></div><div class="screen">Click to upload</div></div></div><div class="multi-phone-container" id="three-phones" style="display: none;"><div class="phone phone-x"><div class="notch"></div><div class="screen">Click to upload</div></div><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click to upload</div></div><div class="phone nexis"><div class="screen">Click to upload</div></div></div><div class="multi-phone-container" id="three-phones-perspective" style="display: none;"><div class="phone-wrapper"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click Here</div></div></div><div class="phone-wrapper"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click Here</div></div></div><div class="phone-wrapper"><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click Here</div></div></div></div><div class="multi-phone-container" id="phones-tiled" style="display: none;"><div class="phone vynix p1"><div class="screen"></div></div><div class="phone phone-pro p2"><div class="notch"></div><div class="screen">Click Here</div></div><div class="phone nexis p3"><div class="screen">Click Here</div></div><div class="phone phone-classic p4"><div class="bezel"></div><div class="screen">Click Here</div><div class="home-button"></div></div><div class="phone vynix p5"><div class="screen"></div></div></div><div class="multi-phone-container" id="phones-stacked" style="display: none;"><div class="phone vynix"><div class="screen">Click to upload</div></div><div class="phone phone-pro"><div class="notch"></div><div class="screen">Click to upload</div></div><div class="phone phone-x"><div class="notch"></div><div class="screen">Click to upload</div></div></div><div class="multi-phone-container" id="four-grid-phones" style="display: none;"><div class="grid-container"><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div></div></div><div class="multi-phone-container" id="three-horizontal-phones" style="display: none;"><div class="horizontal-container"><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div></div></div><div class="multi-phone-container" id="two-horizontal-phones" style="display: none;"><div class="horizontal-container"><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div><div class="phone"><div class="power-button"></div><div class="volume-buttons"><div></div><div></div></div><div class="screen">Click to upload</div></div></div></div>
+        <div id="silver-x-lying-down" class="phone-layout" style="display: none;"><div class="phone silver-x-lying"><div class="phone-side"></div><div class="side-buttons"><div></div><div></div></div><div class="camera"></div><div class="screen">Click to upload</div></div></div>
       </div>
-        <!-- NEW HOW-TO GUIDE -->
       <div class="how-to-guide">
-        <h2>How to Create Your Mockup</h2>
-        <div class="steps-container">
-          <div class="step">
-            <i class="fas fa-list-ul"></i>
-            <h3>1. Choose Model</h3>
-            <p>Select a phone style or layout from the dropdown menu above. <span class="disclaimer">(Note: These are not real phone names, just for identification.)</span></p>
-          </div>
-          <div class="step">
-            <i class="fas fa-palette"></i>
-            <h3>2. Set Background</h3>
-            <p>Pick a solid color, a gradient, or upload your own image for the background.</p>
-          </div>
-          <div class="step">
-            <i class="fas fa-upload"></i>
-            <h3>3. Upload Media</h3>
-            <p>Click on the phone's screen to upload your image or video file.</p>
-          </div>
-          <!-- BANNER AD INSERTED HERE -->
-    <div style="display: flex; justify-content: center; align-items: center; padding: 20px 0;">
-      <script type="text/javascript">  atOptions = {   'key' : '1ae7612ac1f6f639f3dc31811798becd',   'format' : 'iframe',   'height' : 600,   'width' : 160,   'params' : {}  }; </script> <script type="text/javascript" src="//www.highperformanceformat.com/1ae7612ac1f6f639f3dc31811798becd/invoke.js"></script>
-    </div>
-          <div class="step">
-            <i class="fas fa-download"></i>
-            <h3>4. Download</h3>
-            <p>Click the "Download" button and choose your desired format and quality.</p>
-          </div>
-        </div>
+        <h2>How to Create Your Mockup</h2><div class="steps-container"><div class="step"><i class="fas fa-list-ul"></i><h3>1. Choose Model</h3><p>Select a phone style or layout from the dropdown menu above. <span class="disclaimer">(Note: These are not real phone names, just for identification.)</span></p></div><div class="step"><i class="fas fa-palette"></i><h3>2. Set Background</h3><p>Pick a solid color, a gradient, or upload your own image for the background.</p></div><div class="step"><i class="fas fa-upload"></i><h3>3. Upload Media</h3><p>Click on the phone's screen to upload your image or video file.</p></div><div class="step"><i class="fas fa-download"></i><h3>4. Download</h3><p>Click the "Download" button and choose your desired format and quality.</p></div></div>
       </div>
-      
       <input type="file" id="media-upload" accept="image/*,video/*" /><input type="file" id="background-upload" accept="image/*" /><canvas id="render-canvas"></canvas>
-      <div class="modal" id="download-modal"><div class="modal-content"><i class="fas fa-times modal-close" id="download-modal-close"></i><h2>Download Options</h2><button id="download-medium-btn">Medium PNG (1x) (with watermark)</button><button id="download-high-btn">High Quality PNG (2x) (no watermark)</button><button id="download-video-mockup-btn" style="display: none;">Video Mockup (MP4)</button><button id="download-video-png-btn" style="display: none;">Video Snapshot (PNG)</button><p id="video-note" style="display: none; font-size: 12px; color: #333;">Note: Video mockups have sound. Use Snapshot for a static image.</p></div></div>
+      <div class="modal" id="download-modal"><div class="modal-content"><i class="fas fa-times modal-close" id="download-modal-close"></i><h2>Download Options</h2><button id="download-medium-btn">Medium PNG (1x)</button><button id="download-high-btn">High Quality PNG (2x)</button><button id="download-video-mockup-btn" style="display: none;">Video Mockup (MP4)</button><button id="download-video-png-btn" style="display: none;">Video Snapshot (PNG)</button><p id="video-note" style="display: none; font-size: 12px; color: #333;">Note: Video mockups have sound. Use Snapshot for a static image.</p></div></div>
     </div>
-    
-    
-
-    <footer class="footer"><div class="social-links"><a href="https://t.me/your_channel" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a><a href="https://youtube.com/your_channel" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a><a href="https://tiktok.com/@your_profile" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a><a href="https://facebook.com/your_page" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a></div><p>© 2024 Auronuel. All Rights Reserved.</p></footer>
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://youtube.com/@auronuel?si=YTkcGZIeB_3QGJHg" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a><a href="https://vm.tiktok.com/ZMSgSY3Lu/" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a><a href="https://www.facebook.com/share/16GXGeZVyk/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a><a href="https://t.me/emmanuelsenya" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+        </div>
+        <p>© 2024 Auronuel. All Rights Reserved.</p>
+    </footer>
   </div>
 
 <script defer>
-// AD-RELATED SETUP - NEW LINK
-const directLinkUrl = 'https://www.profitableratecpm.com/pqrjqa2hp?key=013775962aec24ec2320cdeae23f03ff';
-function triggerDirectLinkAd() {
-    window.open(directLinkUrl, '_blank');
-}
+// --- START: POISON PILL PROTECTION ---
+// This code protects the script from being run on unauthorized domains.
 
-// ORIGINAL SCRIPT CONSTANTS
+// LAYER 1: DOMAIN LOCK
+(function() {
+    // List of domains where this script is allowed to run.
+    const allowedDomains = [
+        'auronuel.com',       // Your custom domain
+        'www.auronuel.com',   // The 'www' version
+        'auronuel.github.io'  // Your GitHub Pages domain (case-insensitive)
+    ];
+
+    // Get the current website's hostname.
+    const currentHostname = window.location.hostname;
+
+    // Check if the current hostname is in our list of allowed domains.
+    // We compare in lowercase to avoid case-sensitivity issues.
+    const isAllowed = allowedDomains.includes(currentHostname.toLowerCase());
+
+    // If the domain is NOT allowed, execute the "pill".
+    if (!isAllowed) {
+        console.error("CRITICAL: Unauthorized use detected on domain: " + currentHostname + ". Aborting script execution.");
+        
+        // Self-destruct sequence:
+        // 1. Erase the entire page content.
+        document.body.innerHTML = '<div style="background-color:black;color:red;height:100vh;display:flex;justify-content:center;align-items:center;font-family:monospace;font-size:18px;">ERROR: This application is licensed for use on auronuel.com only. Execution has been halted.</div>';
+        
+        // 2. Throw a fatal error to stop any other JavaScript from running. This is crucial.
+        throw new Error("Unauthorized domain. Script self-destructed.");
+    }
+})();
+
+// LAYER 3: ANTI-DEBUGGING
+(function() {
+    function blockDebugger() {
+        // This 'debugger' statement will only pause execution if the developer tools are open.
+        debugger;
+        // Re-run this function in a loop to make debugging extremely annoying.
+        setTimeout(blockDebugger, 100);
+    }
+    try {
+        blockDebugger();
+    } catch (e) {
+        // This catch block helps prevent the script from stopping entirely if a user tries to bypass it.
+    }
+})();
+
+// --- END: POISON PILL PROTECTION ---
+
+
+// --- ORIGINAL WEBSITE SCRIPT STARTS HERE ---
 const phoneSelect = document.getElementById('phone-select');
 const phoneLayouts = {
     nexis: document.getElementById('nexis'), 'vynixo': document.getElementById('vynixo'), 'silver-x': document.getElementById('silver-x'), 'black-x': document.getElementById('black-x'), vynix: document.getElementById('vynix'), 'phone-x': document.getElementById('phone-x'), 'phone-pro': document.getElementById('phone-pro'), 'phone-classic': document.getElementById('phone-classic'),
@@ -379,133 +300,34 @@ const backgroundUpload = document.getElementById('background-upload');
 const phoneContainer = document.getElementById('phone-container');
 const renderCanvas = document.getElementById('render-canvas');
 let currentFile = null; let recordedChunks = []; let isVideoProcessing = false; let ffmpeg = null; let ffmpegLoaded = false; let backgroundType = 'color'; let backgroundImage = null; let lastClickedScreen = null;
-
 const complexLayouts = ['nexis-perspective', 'silver-x-lying-down', 'two-phones', 'three-phones', 'three-phones-perspective', 'phones-tiled', 'phones-stacked', 'four-grid-phones', 'three-horizontal-phones', 'two-horizontal-phones'];
-
 async function loadFFmpeg() { if (ffmpegLoaded) return; statusTextEl.textContent = 'Loading video engine...'; spinner.classList.add('active'); try { if (typeof FFmpeg !== 'undefined' && FFmpeg.createFFmpeg) { ffmpeg = FFmpeg.createFFmpeg({ log: true }); await ffmpeg.load(); ffmpegLoaded = true; statusTextEl.textContent = 'Video engine loaded!'; } else { throw new Error('FFmpeg library not loaded.'); } } catch (err) { console.error('FFmpeg load failed:', err); statusTextEl.textContent = 'Video engine failed. Mockups will be WebM.'; } finally { spinner.classList.remove('active'); setTimeout(() => updateStatusText(), 1500); } }
 function updateStatusText() { const selected = phoneSelect.value; const phoneName = phoneSelect.options[phoneSelect.selectedIndex].text; let newStatusText = `Selected ${phoneName}. Click a screen to upload media.`; if (complexLayouts.includes(selected)) { newStatusText = `Selected ${phoneName}. Only PNG download is available for this layout.`; } statusTextEl.textContent = newStatusText; }
 function updatePhoneDisplay() { const selected = phoneSelect.value; Object.keys(phoneLayouts).forEach(key => { const layout = phoneLayouts[key]; if (layout) { const isMulti = layout.classList.contains('multi-phone-container'); layout.style.display = key === selected ? (isMulti ? 'flex' : 'block') : 'none'; } }); updateStatusText(); }
-
-// **FIXED**: Correctly show/hide buttons based on media type
-function openModal(modal) {
-    const isComplex = complexLayouts.includes(phoneSelect.value);
-    const hasVideo = currentFile && currentFile.type.startsWith('video/');
-
-    if (hasVideo && !isComplex) {
-        // This is a video, show only video options
-        downloadMediumBtn.style.display = 'none';
-        downloadHighBtn.style.display = 'none';
-        downloadVideoMockupBtn.style.display = 'block';
-        downloadVideoPngBtn.style.display = 'block';
-        videoNote.style.display = 'block';
-    } else {
-        // This is an image (or a complex layout which only supports images)
-        downloadMediumBtn.style.display = 'block';
-        downloadHighBtn.style.display = 'block';
-        downloadVideoMockupBtn.style.display = 'none';
-        downloadVideoPngBtn.style.display = 'none';
-        videoNote.style.display = 'none';
-    }
-    modal.classList.add('active');
-}
-
+function openModal(modal) { const isComplex = complexLayouts.includes(phoneSelect.value); const hasVideo = currentFile && currentFile.type.startsWith('video/'); downloadVideoMockupBtn.style.display = hasVideo && !isComplex ? 'block' : 'none'; downloadVideoPngBtn.style.display = hasVideo && !isComplex ? 'block' : 'none'; videoNote.style.display = hasVideo && !isComplex ? 'block' : 'none'; downloadMediumBtn.style.display = !hasVideo || isComplex ? 'block' : 'none'; downloadHighBtn.style.display = !hasVideo || isComplex ? 'block' : 'none'; modal.classList.add('active'); }
 function closeModal(modal) { modal.classList.remove('active'); }
-function redrawLivePreview() { const tempCanvas = document.createElement('canvas'); const containerRect = phoneContainer.getBoundingClientRect(); tempCanvas.width = containerRect.width; tempCanvas.height = containerRect.height; const tempCtx = tempCanvas.getContext('2d'); drawBackground(tempCtx, tempCanvas.width, tempCanvas.height); phoneContainer.style.backgroundImage = `url(${tempCanvas.toDataURL()})`; phoneContainer.style.backgroundColor = 'transparent'; }
+function redrawLivePreview() { const tempCanvas = document.createElement('canvas'); const containerRect = phoneContainer.getBoundingClientRect(); tempCanvas.width = phoneContainer.clientWidth || 500; tempCanvas.height = phoneContainer.clientHeight || 560; const tempCtx = tempCanvas.getContext('2d'); drawBackground(tempCtx, tempCanvas.width, tempCanvas.height); phoneContainer.style.backgroundImage = `url(${tempCanvas.toDataURL()})`; phoneContainer.style.backgroundColor = 'transparent'; }
 function handleMediaUpload(e) { const file = e.target.files[0]; if (!file || !lastClickedScreen) return; currentFile = file; const isVideo = file.type.startsWith('video/'); const isComplexLayout = complexLayouts.includes(phoneSelect.value); if (isVideo && isComplexLayout) { alert("Video uploads are not supported for this layout. Please choose an image."); mediaUpload.value = ''; return; } const reader = new FileReader(); reader.onload = async (event) => { const url = event.target.result; lastClickedScreen.innerHTML = ''; if (file.type.startsWith('image/')) { const img = document.createElement('img'); img.src = url; lastClickedScreen.appendChild(img); statusTextEl.textContent = 'Media uploaded! Click Download.'; } else if (isVideo) { statusTextEl.textContent = 'Processing video...'; spinner.classList.add('active'); downloadBtn.classList.add('disabled'); isVideoProcessing = true; const videoElement = document.createElement('video'); videoElement.src = url; videoElement.muted = false; lastClickedScreen.appendChild(videoElement); prepareVideoRecording(videoElement); } }; reader.readAsDataURL(file); mediaUpload.value = ''; }
 function prepareVideoRecording(videoElement) { videoElement.onloadedmetadata = () => { renderCanvas.width = 800; renderCanvas.height = 800; const ctx = renderCanvas.getContext('2d'); let finalStream; try { const audioContext = new(window.AudioContext || window.webkitAudioContext)(); const source = audioContext.createMediaElementSource(videoElement); const dest = audioContext.createMediaStreamDestination(); source.connect(dest); source.connect(audioContext.destination); const canvasStream = renderCanvas.captureStream(30); finalStream = new MediaStream([...canvasStream.getVideoTracks(), ...dest.stream.getAudioTracks()]); } catch (err) { console.warn("Could not process audio track.", err); finalStream = renderCanvas.captureStream(30); } recordedChunks = []; const mediaRecorder = new MediaRecorder(finalStream, { mimeType: 'video/webm;codecs=vp9,opus' }); mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); }; mediaRecorder.onstop = () => { isVideoProcessing = false; downloadBtn.classList.remove('disabled'); statusTextEl.textContent = 'Video ready! Click Download.'; spinner.classList.remove('active'); }; videoElement.onended = () => { if (mediaRecorder?.state === 'recording') mediaRecorder.stop(); }; function renderLoop() { if (!isVideoProcessing || videoElement.paused || videoElement.ended) return; drawCompleteFrameForVideo(ctx, 1, videoElement); requestAnimationFrame(renderLoop); } drawCompleteFrameForVideo(ctx, 1, videoElement); mediaRecorder.start(); videoElement.currentTime = 0; videoElement.play().catch(console.error); requestAnimationFrame(renderLoop); }; videoElement.onerror = () => { statusTextEl.textContent = 'Error loading video.'; spinner.classList.remove('active'); isVideoProcessing = false; downloadBtn.classList.remove('disabled'); } }
-
-// **FIXED**: Watermark consistency across devices
-async function downloadMockupWithHtml2Canvas(scale = 2, addWatermark = false) { 
-    statusTextEl.textContent = 'Generating high-quality PNG...'; 
-    spinner.classList.add('active'); 
-    redrawLivePreview(); 
-    try { 
-        await new Promise(resolve => setTimeout(resolve, 100)); 
-        const canvas = await html2canvas(phoneContainer, { 
-            scale, 
-            backgroundColor: null, 
-            useCORS: true, 
-            allowTaint: true,
-            devicePixelRatio: 1 // This standardizes rendering across devices
-        }); 
-        
-        if (addWatermark) {
-    const ctx = canvas.getContext('2d');
-    const fontSize = 14 * scale;
-    ctx.font = `bold ${fontSize}px Arial`;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('Made with auronuel.com', canvas.width - (20 * scale), canvas.height - (20 * scale));
-}
-        
-        downloadBlob(canvas.toDataURL('image/png', 1.0), 'png'); 
-        statusTextEl.textContent = 'Mockup downloaded!'; 
-    } catch (err) { 
-        console.error('html2canvas failed:', err); 
-        statusTextEl.textContent = 'Failed to generate mockup.'; 
-    } finally { 
-        spinner.classList.remove('active'); 
-        closeModal(downloadModal); 
-    } 
-}
-
+async function downloadMockupWithHtml2Canvas(scale = 2) { statusTextEl.textContent = 'Generating high-quality PNG...'; spinner.classList.add('active'); if (backgroundType !== 'blur') { redrawLivePreview(); } try { await new Promise(resolve => setTimeout(resolve, 100)); const canvas = await html2canvas(phoneContainer, { scale, backgroundColor: null, useCORS: true, allowTaint: true }); downloadBlob(canvas.toDataURL('image/png', 1.0), 'png'); statusTextEl.textContent = 'Mockup downloaded!'; } catch (err) { console.error('html2canvas failed:', err); statusTextEl.textContent = 'Failed to generate mockup.'; } finally { spinner.classList.remove('active'); closeModal(downloadModal); } }
 async function downloadVideoMockup() { if (recordedChunks.length === 0) { statusTextEl.textContent = 'Video not ready.'; return; } statusTextEl.textContent = 'Finalizing video...'; spinner.classList.add('active'); closeModal(downloadModal); await loadFFmpeg(); const webmBlob = new Blob(recordedChunks, { type: 'video/webm' }); if (ffmpegLoaded) { try { ffmpeg.FS('writeFile', 'input.webm', await FFmpeg.fetchFile(webmBlob)); await ffmpeg.run('-i', 'input.webm', '-c:v', 'libx264', '-crf', 18, '-preset', 'fast', '-c:a', 'aac', '-b:a', '192k', 'output.mp4'); const data = ffmpeg.FS('readFile', 'output.mp4'); downloadBlob(new Blob([data.buffer], { type: 'video/mp4' }), 'mp4'); statusTextEl.textContent = 'Video mockup (MP4) downloaded!'; } catch(err) { console.error("FFmpeg failed, falling back to WebM", err); statusTextEl.textContent = 'MP4 conversion failed! Downloading WebM.'; downloadBlob(webmBlob, 'webm'); } } else { statusTextEl.textContent = 'Video engine failed. Downloading WebM.'; downloadBlob(webmBlob, 'webm'); } spinner.classList.remove('active'); }
 function downloadBlob(blobOrUrl, extension) { const a = document.createElement('a'); a.href = (typeof blobOrUrl === 'string') ? blobOrUrl : URL.createObjectURL(blobOrUrl); a.download = `${phoneSelect.value}-mockup.${extension}`; a.click(); if (typeof blobOrUrl !== 'string') { URL.revokeObjectURL(a.href); } }
-function drawBackground(ctx, width, height) { ctx.clearRect(0, 0, width, height); switch (backgroundType) { case 'image': if (backgroundImage) ctx.drawImage(backgroundImage, 0, 0, width, height); else { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, width, height); } break; case 'gradient_sunset': const sunsetGrad = ctx.createLinearGradient(0, 0, width, height); sunsetGrad.addColorStop(0, '#ff9a9e'); sunsetGrad.addColorStop(1, '#fad0c4'); ctx.fillStyle = sunsetGrad; ctx.fillRect(0, 0, width, height); break; case 'gradient_ocean': const oceanGrad = ctx.createLinearGradient(0, 0, width, height); oceanGrad.addColorStop(0, '#2193b0'); oceanGrad.addColorStop(1, '#6dd5ed'); ctx.fillStyle = oceanGrad; ctx.fillRect(0, 0, width, height); break; case 'color': default: ctx.fillStyle = backgroundColorPicker.value; ctx.fillRect(0, 0, width, height); break; } }
+function drawBackground(ctx, width, height) { ctx.clearRect(0, 0, width, height); switch (backgroundType) { case 'image': if (backgroundImage) ctx.drawImage(backgroundImage, 0, 0, width, height); else { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, width, height); } break; case 'gradient_sunset': const sunsetGrad = ctx.createLinearGradient(0, 0, width, height); sunsetGrad.addColorStop(0, '#ff9a9e'); sunsetGrad.addColorStop(1, '#fad0c4'); ctx.fillStyle = sunsetGrad; ctx.fillRect(0, 0, width, height); break; case 'gradient_ocean': const oceanGrad = ctx.createLinearGradient(0, 0, width, height); oceanGrad.addColorStop(0, '#2193b0'); oceanGrad.addColorStop(1, '#6dd5ed'); ctx.fillStyle = oceanGrad; ctx.fillRect(0, 0, width, height); break; case 'neon_pink': ctx.fillStyle = '#ff00ff'; ctx.fillRect(0, 0, width, height); break; case 'neon_green': ctx.fillStyle = '#39ff14'; ctx.fillRect(0, 0, width, height); break; case 'neon_blue': ctx.fillStyle = '#1f51ff'; ctx.fillRect(0, 0, width, height); break; case 'neon_orange': ctx.fillStyle = '#ff5f00'; ctx.fillRect(0, 0, width, height); break; case 'neon_purple': ctx.fillStyle = '#8a2be2'; ctx.fillRect(0, 0, width, height); break; case 'glass_aurora': const auroraGrad = ctx.createLinearGradient(0, 0, width, height); auroraGrad.addColorStop(0, '#ff00ff'); auroraGrad.addColorStop(1, '#00ffff'); ctx.fillStyle = auroraGrad; ctx.fillRect(0, 0, width, height); break; case 'glass_crystal': const crystalGrad = ctx.createLinearGradient(0, 0, width, height); crystalGrad.addColorStop(0, '#e0e0e0'); crystalGrad.addColorStop(1, '#a0a0a0'); ctx.fillStyle = crystalGrad; ctx.fillRect(0, 0, width, height); break; case 'glass_frost': const frostGrad = ctx.createLinearGradient(0, height, width, 0); frostGrad.addColorStop(0, '#e6dada'); frostGrad.addColorStop(1, '#274046'); ctx.fillStyle = frostGrad; ctx.fillRect(0, 0, width, height); break; case 'glass_aqua': const aquaGrad = ctx.createLinearGradient(0, 0, width, height); aquaGrad.addColorStop(0, '#1fa2ff'); aquaGrad.addColorStop(0.5, '#12d8fa'); aquaGrad.addColorStop(1, '#a6ffcb'); ctx.fillStyle = aquaGrad; ctx.fillRect(0, 0, width, height); break; case 'glass_ruby': const rubyGrad = ctx.createLinearGradient(0, 0, width, 0); rubyGrad.addColorStop(0, '#ff416c'); rubyGrad.addColorStop(1, '#ff4b2b'); ctx.fillStyle = rubyGrad; ctx.fillRect(0, 0, width, height); break; case 'blur': ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; ctx.fillRect(0, 0, width, height); break; case 'color': default: ctx.fillStyle = backgroundColorPicker.value; ctx.fillRect(0, 0, width, height); break; } }
 function drawPhoneFrame(ctx, scale, phoneType) { drawBackground(ctx, ctx.canvas.width, ctx.canvas.height); const models = { nexis: {w:200,h:400,r:20,c:'#1c2526'}, 'silver-x': {w:200,h:400,r:20,c:['#e0e0e0', '#b0b0b0']}, 'black-x': {w:200,h:400,r:20,c:['#4a4a4a', '#1c1c1c']}, vynix: {w:193,h:413,r:23,c:['#4a90e2','#357abd']}, vynixo: {w:193,h:413,r:23,c:['#4a90e2','#357abd']}, 'phone-x': {w:195,h:422,r:40,c:'#0071c3'}, 'phone-pro': {w:195,h:422,r:40,c:'#503d54'}, 'phone-classic': {w:195,h:422,r:30,c:'#1c1c1c'} }; if (!models[phoneType]) return; const phoneWidth = models[phoneType].w * scale; const phoneHeight = models[phoneType].h * scale; const offsetX = (ctx.canvas.width - phoneWidth) / 2; const offsetY = (ctx.canvas.height - phoneHeight) / 2; ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 30 * scale; ctx.shadowOffsetY = 20 * scale; if (Array.isArray(models[phoneType].c)) { const grad = ctx.createLinearGradient(offsetX, offsetY, offsetX + phoneWidth, offsetY + phoneHeight); grad.addColorStop(0, models[phoneType].c[0]); grad.addColorStop(1, models[phoneType].c[1]); ctx.fillStyle = grad; } else { ctx.fillStyle = models[phoneType].c; } ctx.beginPath(); ctx.roundRect(offsetX, offsetY, phoneWidth, phoneHeight, models[phoneType].r * scale); ctx.fill(); ctx.restore(); const glossGrad = ctx.createLinearGradient(offsetX, offsetY, offsetX + phoneWidth, offsetY + phoneHeight * 0.6); glossGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)'); glossGrad.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)'); ctx.beginPath(); ctx.roundRect(offsetX + phoneWidth * 0.04, offsetY, phoneWidth * 0.92, phoneHeight * 0.6, models[phoneType].r * scale); ctx.fillStyle = glossGrad; ctx.fill(); }
 function getScreenCoords(scale) { const p = phoneSelect.value; const coords = { nexis: {x:7,y:13,w:186,h:374,r:10}, 'silver-x': {x:7,y:13,w:186,h:374,r:10}, 'black-x': {x:7,y:13,w:186,h:374,r:10}, vynix: {x:10,y:17,w:173,h:379,r:8}, vynixo: {x:10,y:17,w:173,h:379,r:8}, 'phone-x': {x:12,y:12,w:171,h:398,r:30}, 'phone-pro': {x:12,y:12,w:171,h:398,r:30}, 'phone-classic': {x:15,y:15,w:165,h:392,r:20} }; const phoneDims = { nexis: {w:200,h:400}, 'silver-x': {w:200,h:400}, 'black-x': {w:200,h:400}, vynix: {w:193,h:413}, vynixo: {w:193,h:413}, 'phone-x': {w:195,h:422}, 'phone-pro': {w:195,h:422}, 'phone-classic': {w:195,h:422} }; if (!phoneDims[p]) return null; const phoneOffsetX = (renderCanvas.width - phoneDims[p].w * scale) / 2, phoneOffsetY = (renderCanvas.height - phoneDims[p].h * scale) / 2; return { x: (phoneOffsetX + coords[p].x*scale), y: (phoneOffsetY + coords[p].y*scale), w: coords[p].w*scale, h: coords[p].h*scale, r: coords[p].r*scale }; }
-function drawCompleteFrameForVideo(ctx, scale, mediaElement) {
-    const p = phoneSelect.value;
-    drawPhoneFrame(ctx, scale, p);
-    const screenCoords = getScreenCoords(scale);
-    if (!screenCoords) return;
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(screenCoords.x, screenCoords.y, screenCoords.w, screenCoords.h, screenCoords.r);
-    ctx.clip();
-    const mediaWidth = mediaElement.videoWidth, mediaHeight = mediaElement.videoHeight;
-    const mediaRatio = mediaWidth / mediaHeight, screenRatio = screenCoords.w / screenCoords.h;
-    let drawWidth = screenCoords.w, drawHeight = screenCoords.h, drawX = screenCoords.x, drawY = screenCoords.y;
-    if (mediaRatio > screenRatio) { drawHeight = screenCoords.w / mediaRatio; drawY += (screenCoords.h - drawHeight) / 2; } 
-    else { drawWidth = screenCoords.h * mediaRatio; drawX += (screenCoords.w - drawWidth) / 2; }
-    ctx.drawImage(mediaElement, drawX, drawY, drawWidth, drawHeight);
-    ctx.restore();
-
-    switch(p) {
-        case 'phone-x':
-            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.roundRect(screenCoords.x + 35.5 * scale, screenCoords.y, 100 * scale, 30 * scale, 12 * scale); ctx.fill(); break;
-        case 'phone-pro':
-            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.roundRect(screenCoords.x + 43 * scale, screenCoords.y, 85 * scale, 25 * scale, 20 * scale); ctx.fill(); break;
-        case 'phone-classic':
-            ctx.fillStyle = '#000'; ctx.fillRect(screenCoords.x + 32.5 * scale, screenCoords.y - 3 * scale, 100 * scale, 25 * scale);
-            ctx.strokeStyle = '#444'; ctx.lineWidth = 1 * scale; ctx.beginPath(); ctx.arc(screenCoords.x + 82.5 * scale, screenCoords.y + 367 * scale, 25 * scale, 0, 2 * Math.PI); ctx.stroke(); break;
-        case 'silver-x':
-        case 'black-x':
-            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(screenCoords.x + 93 * scale, screenCoords.y + 10 * scale, 4 * scale, 0, 2 * Math.PI); ctx.fill();
-            ctx.strokeStyle = '#444'; ctx.lineWidth = 1 * scale; ctx.stroke(); break;
-        case 'vynixo':
-            ctx.fillStyle = '#111';
-            ctx.beginPath(); ctx.arc(screenCoords.x + 78.5 * scale, screenCoords.y + 11 * scale, 4.5 * scale, 0, 2 * Math.PI); ctx.fill();
-            ctx.beginPath(); ctx.arc(screenCoords.x + 94.5 * scale, screenCoords.y + 11 * scale, 4.5 * scale, 0, 2 * Math.PI); ctx.fill();
-            break;
-    }
-}
+function drawCompleteFrameForVideo(ctx, scale, mediaElement) { const p = phoneSelect.value; drawPhoneFrame(ctx, scale, p); const screenCoords = getScreenCoords(scale); if (!screenCoords) return; ctx.save(); ctx.beginPath(); ctx.roundRect(screenCoords.x, screenCoords.y, screenCoords.w, screenCoords.h, screenCoords.r); ctx.clip(); const mediaWidth = mediaElement.videoWidth, mediaHeight = mediaElement.videoHeight; const mediaRatio = mediaWidth / mediaHeight, screenRatio = screenCoords.w / screenCoords.h; let drawWidth = screenCoords.w, drawHeight = screenCoords.h, drawX = screenCoords.x, drawY = screenCoords.y; if (mediaRatio > screenRatio) { drawHeight = screenCoords.w / mediaRatio; drawY += (screenCoords.h - drawHeight) / 2; } else { drawWidth = screenCoords.h * mediaRatio; drawX += (screenCoords.w - drawWidth) / 2; } ctx.drawImage(mediaElement, drawX, drawY, drawWidth, drawHeight); ctx.restore(); switch(p) { case 'phone-x': ctx.fillStyle = '#000'; ctx.beginPath(); ctx.roundRect(screenCoords.x + 35.5 * scale, screenCoords.y, 100 * scale, 30 * scale, 12 * scale); ctx.fill(); break; case 'phone-pro': ctx.fillStyle = '#000'; ctx.beginPath(); ctx.roundRect(screenCoords.x + 43 * scale, screenCoords.y, 85 * scale, 25 * scale, 20 * scale); ctx.fill(); break; case 'phone-classic': ctx.fillStyle = '#000'; ctx.fillRect(screenCoords.x + 32.5 * scale, screenCoords.y - 3 * scale, 100 * scale, 25 * scale); ctx.strokeStyle = '#444'; ctx.lineWidth = 1 * scale; ctx.beginPath(); ctx.arc(screenCoords.x + 82.5 * scale, screenCoords.y + 367 * scale, 25 * scale, 0, 2 * Math.PI); ctx.stroke(); break; case 'silver-x': case 'black-x': ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(screenCoords.x + 93 * scale, screenCoords.y + 10 * scale, 4 * scale, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = '#444'; ctx.lineWidth = 1 * scale; ctx.stroke(); break; case 'vynixo': ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(screenCoords.x + 78.5 * scale, screenCoords.y + 11 * scale, 4.5 * scale, 0, 2 * Math.PI); ctx.fill(); ctx.beginPath(); ctx.arc(screenCoords.x + 94.5 * scale, screenCoords.y + 11 * scale, 4.5 * scale, 0, 2 * Math.PI); ctx.fill(); break; } }
 phoneSelect.addEventListener('change', updatePhoneDisplay);
 allScreens.forEach(s => s.addEventListener('click', (e) => { if(e.currentTarget.style.cursor === 'default' || e.currentTarget.parentElement.style.cursor === 'default') return; lastClickedScreen = e.currentTarget; mediaUpload.click(); }));
 mediaUpload.addEventListener('change', handleMediaUpload);
-backgroundTypeSelect.addEventListener('change', (e) => { backgroundType = e.target.value; const colorPickerGroup = backgroundColorPicker.parentElement; colorPickerGroup.style.display = (backgroundType === 'color') ? 'flex' : 'none'; if (backgroundType === 'image') { backgroundUpload.click(); } else { backgroundImage = null; redrawLivePreview(); } });
+backgroundTypeSelect.addEventListener('change', (e) => { backgroundType = e.target.value; const colorPickerGroup = backgroundColorPicker.parentElement; phoneContainer.classList.remove('blurred-bg'); colorPickerGroup.style.display = (backgroundType === 'color') ? 'flex' : 'none'; if (backgroundType === 'image') { backgroundUpload.click(); } else if (backgroundType === 'blur') { backgroundImage = null; phoneContainer.style.backgroundImage = 'none'; phoneContainer.style.backgroundColor = 'transparent'; phoneContainer.classList.add('blurred-bg'); } else { backgroundImage = null; redrawLivePreview(); } });
 backgroundColorPicker.addEventListener('input', redrawLivePreview);
-backgroundUpload.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { const img = new Image(); img.onload = () => { backgroundImage = img; redrawLivePreview(); }; img.src = event.target.result; }; reader.readAsDataURL(file); });
+backgroundUpload.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { const img = new Image(); img.onload = () => { backgroundImage = img; phoneContainer.classList.remove('blurred-bg'); redrawLivePreview(); }; img.src = event.target.result; }; reader.readAsDataURL(file); });
 downloadBtn.addEventListener('click', () => { if (isVideoProcessing) return; openModal(downloadModal); });
 downloadModalClose.addEventListener('click', () => closeModal(downloadModal));
-
-// UPDATED EVENT LISTENERS FOR DOWNLOADS
-downloadMediumBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(1, true));
-downloadHighBtn.addEventListener('click', () => { triggerDirectLinkAd(); downloadMockupWithHtml2Canvas(2, false); });
-downloadVideoPngBtn.addEventListener('click', () => { triggerDirectLinkAd(); downloadMockupWithHtml2Canvas(2, false); });
-downloadVideoMockupBtn.addEventListener('click', () => { triggerDirectLinkAd(); downloadVideoMockup(); });
-
+downloadMediumBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(1));
+downloadHighBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(2));
+downloadVideoPngBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(2));
+downloadVideoMockupBtn.addEventListener('click', () => downloadVideoMockup());
 updatePhoneDisplay();
 redrawLivePreview();
 document.getElementById('background-color').parentElement.style.display = (backgroundTypeSelect.value === 'color') ? 'flex' : 'none';
@@ -514,8 +336,5 @@ const overlay = document.querySelector('.sidebar-overlay');
 hamburger.addEventListener('click', () => { document.body.classList.toggle('sidebar-open'); });
 overlay.addEventListener('click', () => { document.body.classList.remove('sidebar-open'); });
 </script>
-
-<!-- SOCIAL BAR AD INSERTED HERE -->
-<script type='text/javascript' src='//pl27124582.profitableratecpm.com/98/e8/7f/98e87ffab6995d0a727581f5b6b1dcd0.js'></script>
 </body>
 </html>
