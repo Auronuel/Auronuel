@@ -1,25 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Auronuel - Image Utilities</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-  <script src="https://fpyf8.com/88/tag.min.js" data-zone="156856" async data-cfasync="false"></script>
-  <!-- Libraries for 3D rendering and exporting -->
+  <title>Auronuel - Logo to 3D Model</title>
+  
+  <!-- 3D Library: Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+  
+  <!-- Video Conversion Library: FFmpeg -->
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js" defer></script>
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  
   <style>
+    /* --- Inherited Styles from Your Provided Code --- */
     :root {
       --sidebar-width: 240px;
       --sidebar-bg: #3a3f44;
       --accent-color: #ff69b4;
     }
+
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #74ebd5, #acb6e5); display: flex; flex-direction: column; min-height: 100vh; transition: margin-left 0.3s ease; }
+    
     .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; background: var(--sidebar-bg); display: flex; flex-direction: column; z-index: 1002; transform: translateX(-100%); transition: transform 0.3s ease; }
     .sidebar .logo-container { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #50565c; }
-    .logo-placeholder { width: 60px; height: 60px; background: #0d0101; border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
+    .logo-placeholder { width: 60px; height: 60px; background: #141414; border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
     .sidebar .logo-container h1 { color: #fff; font-size: 20px; margin: 0; }
     .sidebar-nav { display: flex; flex-direction: column; padding-top: 10px; }
     .sidebar-group-title { padding: 15px 20px 5px 20px; font-size: 12px; font-weight: bold; color: #9aa2ac; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -27,15 +36,13 @@
     .sidebar-nav a:hover, .sidebar-nav a.active { background: #50565c; }
     .sidebar-nav a i { font-size: 18px; width: 22px; text-align: center; }
     .sidebar-nav a span { font-size: 15px; }
+
     .page-container { display: flex; flex-direction: column; min-height: 100vh; width: 100%; transition: margin-left 0.3s ease; }
     .navbar { position: fixed; top: 0; left: 0; width: 100%; display: flex; align-items: center; background: var(--accent-color); padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 1000; margin: 0; box-sizing: border-box;}
     .hamburger-menu { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px 10px; margin-right: 15px; display: block; }
     .navbar h1 { color: #fff; font-size: 24px; margin: 0; }
-    .content { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 15px; max-width: 950px; width: 100%; box-sizing: border-box; margin: 60px auto 0 auto; flex-grow: 1;}
-    #status { margin-bottom: 10px; color: #333; text-align: center; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 20px; width: 100%; }
-    .spinner { display: none; width: 16px; height: 16px; border: 3px solid var(--accent-color); border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-    .spinner.active { display: inline-block; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .content { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 15px; max-width: 1200px; width: 100%; box-sizing: border-box; margin: 60px auto 0 auto; flex-grow: 1;}
     .footer { background: var(--sidebar-bg); color: white; padding: 20px; text-align: center; margin-top: auto; }
     .social-links { margin-bottom: 15px; }
     .social-links a { color: white; margin: 0 15px; font-size: 24px; text-decoration: none; transition: color 0.3s; }
@@ -44,215 +51,474 @@
     .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; display: none; }
     body.sidebar-open .sidebar-overlay { display: block; }
     body.sidebar-open .sidebar { transform: translateX(0); }
+
     @media (min-width: 992px) { .sidebar { transform: translateX(0); } .page-container { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); } .navbar { left: var(--sidebar-width); width: calc(100% - var(--sidebar-width));} .hamburger-menu { display: none; } }
-    input[type="file"] { display: none; }
+
+    /* --- New & Modified Styles for 3D System --- */
+    .main-layout { display: flex; flex-direction: row; gap: 20px; width: 100%; flex-wrap: wrap; }
+    .viewer-container { flex: 3; min-width: 300px; min-height: 500px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden;}
+    .viewer-container canvas { display: block; width: 100%; height: 100%; }
+    .controls-panel { flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 15px; }
+
+    .control-group { display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.6); padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .control-group h3 { margin: 0 0 10px 0; color: #333; font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+    .control-group label { font-size: 12px; font-weight: bold; color: #555; }
+    .control-item { display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-color); border: 2px solid var(--accent-color); border-radius: 5px; padding: 12px; background: #fff; font-weight: bold; transition: all 0.2s ease; }
+    .control-item:hover { background: var(--accent-color); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+    .control-item i { margin-right: 8px; }
     
-    /* --- TOOL STYLES --- */
-    .tool-switcher { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 15px; width: 100%; justify-content: center; flex-wrap: wrap;}
-    .tool-switcher button { background: #f0f0f0; border: 1px solid #ccc; padding: 10px 20px; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 5px; color: #555; transition: all 0.2s ease; margin-top: 5px; }
-    .tool-switcher button:hover { background: #e0e0e0; }
-    .tool-switcher button.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-    .tool-container { display: none; width: 100%; flex-direction: column; align-items: center; gap: 20px; }
-    .tool-container.active { display: flex; }
-    .upload-area { border: 2px dashed #ccc; border-radius: 10px; padding: 40px 20px; text-align: center; width: 100%; max-width: 500px; cursor: pointer; transition: all 0.2s ease; background: #fff; }
-    .upload-area:hover, .upload-area.dragover { border-color: var(--accent-color); background: #fdecf5; }
-    .upload-area i { font-size: 32px; color: var(--accent-color); margin-bottom: 15px; }
-    .upload-area p { margin: 0; font-size: 16px; color: #666; font-weight: bold; }
-    .upload-area span { font-size: 12px; color: #999; }
-    .controls-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; width: 100%; max-width: 500px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-    .control-group { display: flex; flex-direction: column; gap: 5px; }
-    .control-group label { font-size: 12px; font-weight: bold; color: #333; }
-    .control-group input[type="number"], .control-group input[type="range"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-    .aspect-ratio-group { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-top: 5px; }
-    .action-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
-    .action-buttons button { background: var(--accent-color); color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: background 0.2s ease; margin-top: 5px; }
-    .action-buttons button:hover:not(:disabled) { background: #e55a9f; }
-    .action-buttons button:disabled { background: #ccc; cursor: not-allowed; }
-    .preview-container { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; margin-top: 20px; }
-    @media (min-width: 768px) { .preview-container { grid-template-columns: 1fr 1fr; } }
-    .preview-box { background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
-    .preview-box h3 { margin: 0 0 10px 0; font-size: 14px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;}
-    .preview-box img { max-width: 100%; height: auto; border-radius: 4px; min-height: 100px; background: #f0f0f0; }
-    #converter-3d-preview-container { min-height: 300px; width: 100%; max-width: 450px; border-radius: 4px; background: #f0f0f0; cursor: grab; }
-    #converter-3d-preview-container:active { cursor: grabbing; }
+    #status { margin-bottom: 15px; color: #333; text-align: center; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 20px; width: 100%; background: rgba(255,255,255,0.7); padding: 8px; border-radius: 5px; }
+    .spinner { display: none; width: 16px; height: 16px; border: 3px solid var(--accent-color); border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+    .spinner.active { display: inline-block; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1003; }
+    .modal.active { display: flex; }
+    .modal-content { background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 20px; max-width: 400px; width: 90%; display: flex; flex-direction: column; gap: 15px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .modal-content h2 { margin-top: 0; color: #333; }
+    .modal-content button { background: var(--accent-color); color: #fff; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; width: 100%; max-width: 250px; font-size: 16px; transition: background 0.2s; }
+    .modal-content button:hover { background: #e55a9f; }
+    .modal-close { align-self: flex-end; cursor: pointer; font-size: 20px; color: #555; }
+    
+    select, input[type="color"], input[type="range"] { padding: 8px; border: 1px solid #ccc; border-radius: 5px; width: 100%; box-sizing: border-box; font-size: 14px;}
+    input[type="color"] { padding: 0; height: 40px; border: 1px solid #ccc; cursor: pointer;}
+    input[type="file"] { display: none; }
+    input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: #ddd; border-radius: 5px; outline: none; opacity: 0.7; transition: opacity .2s; cursor: pointer; }
+    input[type="range"]:hover { opacity: 1; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: var(--accent-color); border-radius: 50%; }
+    input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: var(--accent-color); border-radius: 50%; }
+
+    .how-to-guide { width: 100%; background: #fff; border-radius: 10px; padding: 20px 25px; margin-top: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); box-sizing: border-box; }
+    .how-to-guide h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; font-size: 1.5rem; }
+    .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center; }
+    .step i { font-size: 2rem; color: var(--accent-color); margin-bottom: 10px; }
+    .step h3 { margin: 0 0 5px 0; font-size: 1rem; color: #333; }
+    .step p { margin: 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
   </style>
 </head>
 <body>
+
   <div class="sidebar">
-    <div class="logo-container"><div class="logo-placeholder"><img src="images/auro.png" alt=""></div><h1>Auronuel</h1></div>
+    <div class="logo-container" >
+      <div class="logo-placeholder"></div>
+      <h1>Auronuel 3D</h1>
+    </div>
     <nav class="sidebar-nav">
-      <div class="sidebar-group-title">Devices</div>
-      <a href="phonemockup.html"><i class="fas fa-mobile-alt"></i><span>Phone Mockup</span></a>
-      <a href="tabletmockup.html"><i class="fas fa-tablet-alt"></i><span>Tablet Mockup</span></a>
-      <a href="laptopmockup.html"><i class="fas fa-laptop"></i><span>Laptop Mockup</span></a>
-      <div class="sidebar-group-title">Picture and Text Adjustment</div>
-      <a href="imageutilities.html" class="active"><i class="fas fa-crop-alt"></i><span>Image Utilities</span></a>
-      <a href="markdown.html"><i class="fab fa-markdown"></i><span>Markdown</span></a>
-      <div class="sidebar-group-title">Resources</div>
-      <a href="about.html"><i class="fas fa-info-circle"></i><span>About</span></a>
-      <a href="tutorials.html"><i class="fas fa-book-open"></i><span>Tutorials</span></a>
+        <div class="sidebar-group-title">Tools</div>
+        <a href="#" class="active"><i class="fas fa-cube"></i><span>Logo to 3D Model</span></a>
+        <a href="#"><i class="fas fa-mobile-alt"></i><span>Phone Mockup</span></a>
+        <div class="sidebar-group-title">Resources</div>
+        <a href="#"><i class="fas fa-info-circle"></i><span>About</span></a>
+        <a href="#"><i class="fas fa-book-open"></i><span>Tutorials</span></a>
     </nav>
   </div>
   <div class="sidebar-overlay"></div>
+
   <div class="page-container">
-    <div class="navbar"><button class="hamburger-menu" id="hamburger-menu"><i class="fas fa-bars"></i></button><h1>Image Utilities</h1></div>
+    <div class="navbar">
+      <button class="hamburger-menu" id="hamburger-menu"><i class="fas fa-bars"></i></button>
+      <h1>Logo to 3D Model</h1>
+    </div>
+
     <div class="content">
-      <div id="status"><span id="status-text">Select a tool and upload an image to begin.</span><span class="spinner"></span></div>
-      
-      <div class="tool-switcher">
-        <button id="show-converter-3d-btn" class="active">Logo to 3D</button>
-        <button id="show-sketcher-btn">Image to Sketch</button>
-        <button id="show-resizer-btn">Image Resizer</button>
+      <div id="status">
+          <span id="status-text">Select an object and upload your logo to begin.</span>
+          <span class="spinner"></span>
       </div>
 
-      <!-- Image to 3D Converter Tool -->
-      <div id="converter-3d-tool" class="tool-container active">
-        <div class="upload-area" id="converter-3d-upload-area"><i class="fas fa-cube"></i><p>Drop logo/image here or click to upload</p><span>For 3D, Video & Image Conversion</span></div>
-        <input type="file" id="converter-3d-file-input" accept="image/*">
+      <div class="main-layout">
+        <div class="viewer-container" id="viewer-container">
+            <!-- Three.js Canvas will be inserted here -->
+        </div>
+
         <div class="controls-panel">
-          <div class="control-group"><label for="converter-3d-depth">3D Depth</label><input type="range" id="converter-3d-depth" min="1" max="100" value="25"></div>
-          <div class="control-group"><label for="converter-3d-detail">3D Detail</label><input type="range" id="converter-3d-detail" min="50" max="250" value="150" step="10"></div>
-        </div>
-        <div class="action-buttons">
-          <button id="converter-3d-generate-btn" disabled>Generate 3D</button>
-          <button id="converter-3d-reset-btn" disabled><i class="fas fa-camera-rotate"></i> Reset View</button>
-          <button id="converter-3d-image-btn" disabled>Export Image</button>
-          <button id="converter-3d-video-btn" disabled>Export Video</button>
-          <button id="converter-3d-model-btn" disabled>Export 3D Model (.glb)</button>
-        </div>
-        <div class="preview-container">
-          <div class="preview-box"><h3>Original</h3><img id="converter-3d-original-preview" src="" alt="Original Image Preview"></div>
-          <div class="preview-box"><h3>3D Preview</h3><div id="converter-3d-preview-container"></div></div>
+            <div class="control-group">
+                <h3>1. Scene Setup</h3>
+                <label for="model-select">Object Model</label>
+                <select id="model-select">
+                    <option value="cube">Cube</option>
+                    <option value="cylinder">Cylinder</option>
+                    <option value="sphere">Sphere</option>
+                    <option value="plaque">Plaque</option>
+                </select>
+                <label for="logo-upload-btn">Logo Image</label>
+                <button id="logo-upload-btn" class="control-item"><i class="fas fa-upload"></i> Upload Logo</button>
+            </div>
+            
+            <div class="control-group">
+                <h3>2. Material Properties</h3>
+                <label for="bg-color">Background Color</label>
+                <input type="color" id="bg-color" value="#ffffff">
+                <label for="base-color">Object Color</label>
+                <input type="color" id="base-color" value="#cccccc">
+                <label for="metallic-slider">Metallic</label>
+                <input type="range" id="metallic-slider" min="0" max="1" step="0.01" value="0.5">
+                <label for="roughness-slider">Roughness</label>
+                <input type="range" id="roughness-slider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+
+            <div class="control-group">
+                <h3>3. Logo Transform</h3>
+                <label for="logo-scale-slider">Logo Scale</label>
+                <input type="range" id="logo-scale-slider" min="0.1" max="2" step="0.01" value="1">
+                <label for="logo-offset-x-slider">Logo Offset X</label>
+                <input type="range" id="logo-offset-x-slider" min="-1" max="1" step="0.01" value="0">
+                <label for="logo-offset-y-slider">Logo Offset Y</label>
+                <input type="range" id="logo-offset-y-slider" min="-1" max="1" step="0.01" value="0">
+            </div>
+
+            <div class="control-group">
+              <h3>4. Export</h3>
+              <button id="export-btn" class="control-item"><i class="fas fa-download"></i> Export Options</button>
+            </div>
         </div>
       </div>
       
-      <!-- FIX: All tool HTML is now static and present on page load -->
-      <!-- Image to Sketch Tool -->
-      <div id="sketcher-tool" class="tool-container">
-        <div class="upload-area" id="sketcher-upload-area"><i class="fas fa-pencil-ruler"></i><p>Drop image here or click to upload</p><span>For sketch conversion</span></div>
-        <input type="file" id="sketcher-file-input" accept="image/*">
-        <div class="controls-panel">
-           <div class="control-group">
-            <label for="sketcher-threshold">Line Threshold</label>
-            <input type="range" id="sketcher-threshold" min="10" max="100" value="30">
+      <div class="how-to-guide">
+        <h2>How to Create Your 3D Logo Mockup</h2>
+        <div class="steps-container">
+          <div class="step">
+            <i class="fas fa-shapes"></i>
+            <h3>1. Choose Model</h3>
+            <p>Select a 3D object like a cube, cylinder, or plaque from the "Scene Setup" panel.</p>
+          </div>
+          <div class="step">
+            <i class="fas fa-image"></i>
+            <h3>2. Upload Logo</h3>
+            <p>Click "Upload Logo" and select a PNG or JPG file. A transparent PNG works best!</p>
+          </div>
+          <div class="step">
+            <i class="fas fa-sliders-h"></i>
+            <h3>3. Adjust & Customize</h3>
+            <p>Use the sliders to change the object's color, material, and the logo's size/position.</p>
+          </div>
+          <div class="step">
+            <i class="fas fa-file-export"></i>
+            <h3>4. Export Your File</h3>
+            <p>Click "Export Options" and choose your format: a PNG image, MP4 video, or a 3D model.</p>
           </div>
         </div>
-        <div class="action-buttons">
-          <button id="sketcher-action-btn" disabled>Convert to Sketch</button>
-          <button id="sketcher-download-btn" disabled>Download Sketch</button>
-        </div>
-        <div class="preview-container">
-          <div class="preview-box"><h3>Original</h3><img id="sketcher-original-preview" src="" alt="Original Image Preview"></div>
-          <div class="preview-box"><h3>Sketch</h3><img id="sketcher-sketch-preview" src="" alt="Sketch Preview"></div>
-        </div>
       </div>
       
-      <!-- Image Resizer Tool -->
-      <div id="resizer-tool" class="tool-container">
-        <div class="upload-area" id="resizer-upload-area"><i class="fas fa-file-upload"></i><p>Drop image here or click to upload</p><span>For resizing</span></div>
-        <input type="file" id="resizer-file-input" accept="image/*">
-        <div class="controls-panel"><div class="control-group"><label for="resizer-width">Width (px)</label><input type="number" id="resizer-width" min="1"></div><div class="control-group"><label for="resizer-height">Height (px)</label><input type="number" id="resizer-height" min="1"></div><div class="control-group aspect-ratio-group"><input type="checkbox" id="resizer-aspect-ratio" checked><label for="resizer-aspect-ratio">Lock Aspect Ratio</label></div></div>
-        <div class="action-buttons"><button id="resizer-action-btn" disabled>Resize</button><button id="resizer-download-btn" disabled>Download Image</button></div>
-        <div class="preview-container"><div class="preview-box"><h3>Original</h3><img id="resizer-original-preview" src="" alt="Original Image Preview"></div><div class="preview-box"><h3>Resized</h3><img id="resizer-resized-preview" src="" alt="Resized Image Preview"></div></div>
-      </div>
+      <input type="file" id="logo-upload-input" accept="image/*" />
+      <div class="modal" id="export-modal"><div class="modal-content"><i class="fas fa-times modal-close" id="export-modal-close"></i><h2>Export Options</h2><p style="font-size:14px; text-align:center; color:#555;">Choose your desired format.</p><button id="export-png-btn">Download PNG Image</button><button id="export-video-btn">Download Video (360°)</button><button id="export-glb-btn">Download 3D Model (.glb)</button></div></div>
     </div>
-    <!-- UPDATED Footer with your links -->
     <footer class="footer">
         <div class="social-links">
-            <a href="https://t.me/emmanuelsenya" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
-            <a href="https://youtube.com/@auronuel?si=YTkcGZIeB_3QGJHg" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
-            <a href="https://vm.tiktok.com/ZMSgSY3Lu/" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
-            <a href="https://www.facebook.com/share/16GXGeZVyk/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+            <a href="#" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
         </div>
         <p>© 2024 Auronuel. All Rights Reserved.</p>
     </footer>
   </div>
-<script>
 
-    function _0x106f(){const _0x17f063=['4476DwvEWk','ccnIZ','nIDpd','DaKRL','BffmA','NYFYb','console','UrYwQ','sLEhA','vVrQn','test','<div\x20style=\x22background-color:black;color:red;height:100vh;display:flex;justify-content:center;align-items:center;font-family:monospace;font-size:18px;\x22>ERROR:\x20Unauthorized\x20access.\x20Execution\x20has\x20been\x20halted.</div>','PcUDH','yzXxz','UVbSp','bind','wTgym','includes','vxTtf','kUwLo','Unauthorized\x20domain.\x20Script\x20self-destructed.','vttpN','sZrrO','YiOkI','\x5c+\x5c+\x20*(?:[a-zA-Z_$][0-9a-zA-Z_$]*)','xMROL','auronuel.com','jzzMw','fKxSY','www.auronuel.com','sarBz','pBQVO','table','qNJSE','oNIJY','nFmGE','.\x20Aborting\x20script\x20execution.','eIfud','Ayvag','40GbFvmW','tsvbW','search','xKhzR','cKQOU','UyuwM','1950fJaHJB','Vpwop','log','auronuel.github.io','rwlls','WYQCF','3342FOMrnV','RNFue','RPtGA','while\x20(true)\x20{}','679DfnBGx','swIbc','CrQxu','Srgpd','zJjEz','constructor','gALTm','2970ntxUFO','error','toString','toLowerCase','retLI','innerHTML','SoWZT','BmOmb','789237WxSyUB','string','GPyMW','mhJEa','kCsZa','wmxJt','RmDuY','VsgXq','tHzTL','FiMXx','call','YuLVn','HokhS','DxiHE','info','RdbVf','NONwY','PVFww','body','AZEua','10dvqpEA','ErCwL','length','hULqH','SFUwH','YyngR','fELqb','apply','VoDFW','eyeSA','LOdVL','VYfTA','bEgju','gPnne','QokUX','debu','upOiT','warn','input','XBhps','init','joxhl','qmyAN','108194XXlVfi','KrjdX','KDQZw','prototype','__proto__','AhbHc','JoBgB','PxaRS','action','180410oedCnq','nLnKz','IhQDn','YeEoF','YuAsu','xXcId','Oenbc','UAhQy','awvre','exception','GfDLx','SLfLS','EzUIG','348272qtOsIG','stateObject','SZbzF','iUVbG','location','MTVEl','sIYzS','function\x20*\x5c(\x20*\x5c)','ehZFI','gger','iuzUm','pDNtQ','AKAvv','HOsce','OPGhN','CRITICAL:\x20Unauthorized\x20use\x20detected\x20on\x20domain:\x20','cMCqv','Ruvvr','711tmWuZn'];_0x106f=function(){return _0x17f063;};return _0x106f();}function _0x28f6(_0x4d25c5,_0x4ebc3c){const _0xb3c6ed=_0x106f();return _0x28f6=function(_0x213656,_0x2be960){_0x213656=_0x213656-(0x2109*0x1+-0x258c+0x5c1);let _0x20c5a4=_0xb3c6ed[_0x213656];return _0x20c5a4;},_0x28f6(_0x4d25c5,_0x4ebc3c);}(function(_0x184bc2,_0x2e3038){const _0x50c759={_0x4b0942:0x1a7,_0x13b2ec:0x169,_0x4eb239:0x163,_0xec83ad:0x16d,_0x4900f0:0x15d,_0x4bb1d7:0x17c,_0x4c1c20:0x174,_0x1905a6:0x1d0},_0x38f2ca=_0x28f6,_0x2f20c5=_0x184bc2();while(!![]){try{const _0x3d34bd=parseInt(_0x38f2ca(_0x50c759._0x4b0942))/(0x1df3+-0x1cd2+-0x120)+parseInt(_0x38f2ca(_0x50c759._0x13b2ec))/(0x19e4+-0x5df+-0x1403)*(parseInt(_0x38f2ca(0x1cf))/(-0x3e7+-0x1092+0x147c))+-parseInt(_0x38f2ca(0x1bd))/(0x6f*-0x4f+-0x1*0x21d7+-0x1*-0x441c)*(-parseInt(_0x38f2ca(0x190))/(-0x1f0+0xb*-0x250+0x1b65))+parseInt(_0x38f2ca(_0x50c759._0x4eb239))/(-0x841+0x1b*-0x56+0x1159*0x1)*(-parseInt(_0x38f2ca(_0x50c759._0xec83ad))/(-0x2284+-0x1cd7+0x90e*0x7))+parseInt(_0x38f2ca(_0x50c759._0x4900f0))/(0x1f14+0x11e8+-0x30f4)*(-parseInt(_0x38f2ca(_0x50c759._0x4bb1d7))/(0x1*0x3db+0x12d*0x2+0x62c*-0x1))+-parseInt(_0x38f2ca(0x1b0))/(0xf0+-0x214+0x12e)+parseInt(_0x38f2ca(_0x50c759._0x4c1c20))/(-0x48*-0x2e+0xf97+-0x1c7c)*(parseInt(_0x38f2ca(_0x50c759._0x1905a6))/(0xa07+0xb*0x2e7+-0x29e8));if(_0x3d34bd===_0x2e3038)break;else _0x2f20c5['push'](_0x2f20c5['shift']());}catch(_0x43abf8){_0x2f20c5['push'](_0x2f20c5['shift']());}}}(_0x106f,0x35e9d*-0x1+-0x3d1*-0x1c1+0x11de8),(function(){const _0xa5c001={_0x133d87:0x19f,_0x552b32:0x15a,_0x2a285b:0x14a,_0x476a99:0x150,_0x51c431:0x18c,_0x51e6e0:0x188,_0x53dfef:0x153,_0x1072c9:0x166,_0x106726:0x1c1,_0x1f6f52:0x147,_0x282fa1:0x177,_0xc79cef:0x175,_0x94cb88:0x1b6,_0x2e1ae1:0x18e,_0x1e4db7:0x179,_0x109d45:0x141,_0x22f2a6:0x161,_0x457f57:0x1b6,_0x12fea6:0x1b4,_0x3a4dfe:0x179,_0x4a1bc4:0x189},_0x3a07f5={_0xf811fe:0x160,_0x4693c5:0x1cb,_0xd3340c:0x1c8,_0x418435:0x146,_0x40aedb:0x1a0,_0xab17c3:0x193},_0x1ad183=_0x28f6,_0x36bd99={'VsMqz':function(_0x5ce7e9,_0x1947ff){return _0x5ce7e9+_0x1947ff;},'kCsZa':_0x1ad183(0x1ae),'cjEIw':_0x1ad183(0x144),'BHfbF':'tKnGI','OPGhN':_0x1ad183(_0xa5c001._0x133d87),'YuLVn':'gger','ryWJW':'action','oeOSY':function(_0x3d39ad,_0x58b9b5){return _0x3d39ad===_0x58b9b5;},'wTgym':_0x1ad183(0x1b8),'tHzTL':_0x1ad183(0x19e),'hULqH':'(((.+)+)+)+$','cKQOU':function(_0x3566ee,_0x5244ca){return _0x3566ee+_0x5244ca;},'Oenbc':_0x1ad183(0x1cc),'YuAsu':_0x1ad183(_0xa5c001._0x552b32),'CYJrl':_0x1ad183(0x141),'DxiHE':_0x1ad183(_0xa5c001._0x2a285b),'HokhS':function(_0x1ff34e,_0x52d9ea,_0x3de589){return _0x1ff34e(_0x52d9ea,_0x3de589);},'BffmA':_0x1ad183(_0xa5c001._0x476a99),'NYFYb':_0x1ad183(_0xa5c001._0x51c431)},_0x47593d=(function(){const _0x963d85={_0xea323f:0x1c5},_0x58701a=_0x1ad183,_0x4c7752={'DHKKL':function(_0x2bc0d5,_0x319d4d){return _0x36bd99['VsMqz'](_0x2bc0d5,_0x319d4d);},'JHkiq':function(_0x1ca157,_0xe9eaf5){return _0x1ca157===_0xe9eaf5;},'Srgpd':_0x36bd99[_0x58701a(0x180)]};if(_0x36bd99['cjEIw']===_0x36bd99['BHfbF']){const _0xc4681=_0x3d3596[_0x58701a(0x197)](_0x1decad,arguments);return _0x58aaab=null,_0xc4681;}else{let _0x1158cc=!![];return function(_0x27e9bc,_0x22edc7){const _0x2ff8dd={_0x140ee6:0x1b5,_0x4dac9c:0x1c3,_0x1d6fdc:0x159,_0x357ac1:0x151,_0x5236ff:0x197},_0x19a215=_0x58701a,_0x1673fd={'cMCqv':function(_0x5d0f8a,_0x89869f){return _0x4c7752['DHKKL'](_0x5d0f8a,_0x89869f);},'xXcId':function(_0xe69ca9,_0x551a65){return _0xe69ca9!==_0x551a65;},'zVLqk':_0x19a215(_0x963d85._0xea323f),'vVrQn':function(_0x176865,_0x20e0be){return _0x4c7752['JHkiq'](_0x176865,_0x20e0be);},'uIZOk':_0x4c7752[_0x19a215(0x170)]},_0x7e780f=_0x1158cc?function(){const _0x3b3746=_0x19a215,_0x3414b2={'nFmGE':function(_0x41d31f,_0x4117c4){const _0x18910b=_0x28f6;return _0x1673fd[_0x18910b(0x1cd)](_0x41d31f,_0x4117c4);},'jzzMw':_0x3b3746(0x19f)};if(_0x1673fd[_0x3b3746(_0x2ff8dd._0x140ee6)](_0x1673fd['zVLqk'],_0x3b3746(0x1c5)))_0x52f572=_0x56440d;else{if(_0x22edc7){if(_0x1673fd[_0x3b3746(0x13f)](_0x1673fd['uIZOk'],_0x3b3746(_0x2ff8dd._0x4dac9c)))(function(){return![];}['constructor'](EUdwwm[_0x3b3746(_0x2ff8dd._0x1d6fdc)](EUdwwm[_0x3b3746(_0x2ff8dd._0x357ac1)],_0x3b3746(0x1c6)))[_0x3b3746(0x197)](_0x3b3746(0x1be)));else{const _0x9c96e9=_0x22edc7[_0x3b3746(_0x2ff8dd._0x5236ff)](_0x27e9bc,arguments);return _0x22edc7=null,_0x9c96e9;}}}}:function(){};return _0x1158cc=![],_0x7e780f;};}}()),_0x26c8dd=_0x36bd99[_0x1ad183(_0xa5c001._0x51e6e0)](_0x47593d,this,function(){const _0x5edc01=_0x1ad183,_0x4dfc4a={};_0x4dfc4a[_0x5edc01(_0x3a07f5._0xf811fe)]=_0x36bd99[_0x5edc01(_0x3a07f5._0x4693c5)],_0x4dfc4a[_0x5edc01(_0x3a07f5._0xd3340c)]=_0x36bd99[_0x5edc01(0x187)],_0x4dfc4a[_0x5edc01(0x1a0)]=_0x36bd99['ryWJW'];const _0x4fe20c=_0x4dfc4a;if(_0x36bd99['oeOSY'](_0x36bd99[_0x5edc01(_0x3a07f5._0x418435)],_0x36bd99[_0x5edc01(0x184)]))(function(){return!![];}['constructor'](gZzfcw[_0x5edc01(_0x3a07f5._0xf811fe)]+gZzfcw[_0x5edc01(_0x3a07f5._0xd3340c)])[_0x5edc01(0x186)](gZzfcw[_0x5edc01(_0x3a07f5._0x40aedb)]));else return _0x26c8dd['toString']()[_0x5edc01(0x15f)](_0x36bd99[_0x5edc01(_0x3a07f5._0xab17c3)])['toString']()['constructor'](_0x26c8dd)['search']('(((.+)+)+)+$');});_0x26c8dd();const _0x4137fb=[_0x36bd99[_0x1ad183(0x1d4)],_0x1ad183(_0xa5c001._0x53dfef),_0x1ad183(_0xa5c001._0x1072c9)],_0x29ca51=window[_0x1ad183(_0xa5c001._0x106726)]['hostname'],_0x509dcf=_0x4137fb[_0x1ad183(_0xa5c001._0x1f6f52)](_0x29ca51[_0x1ad183(_0xa5c001._0x282fa1)]());if(!_0x509dcf){if(_0x36bd99['oeOSY'](_0x36bd99[_0x1ad183(0x1d5)],'NONwY')){console[_0x1ad183(_0xa5c001._0xc79cef)](_0x36bd99[_0x1ad183(_0xa5c001._0x94cb88)]+_0x29ca51+_0x36bd99[_0x1ad183(0x1b4)]),document[_0x1ad183(_0xa5c001._0x2e1ae1)][_0x1ad183(_0xa5c001._0x1e4db7)]=_0x1ad183(_0xa5c001._0x109d45);throw new Error(_0x36bd99[_0x1ad183(0x189)]);}else{_0x54fffc[_0x1ad183(0x175)](_0x36bd99[_0x1ad183(_0xa5c001._0x22f2a6)](_0x36bd99[_0x1ad183(_0xa5c001._0x457f57)],_0x2098ba)+_0x36bd99[_0x1ad183(_0xa5c001._0x12fea6)]),_0x4e2dde[_0x1ad183(0x18e)][_0x1ad183(_0xa5c001._0x3a4dfe)]=_0x36bd99['CYJrl'];throw new _0x26ab54(_0x36bd99[_0x1ad183(_0xa5c001._0x4a1bc4)]);}}}()),(function(){const _0x5eb344={_0x3b6f4c:0x1c4,_0x538939:0x18a,_0x4371f1:0x156,_0x4cdcbc:0x16f,_0x354496:0x14d,_0x4d4f41:0x16f},_0x4ccbe0={_0x1997a3:0x155,_0x179879:0x17e,_0x22776e:0x1b1,_0x16bb8c:0x15c},_0x53ed47={_0xac40e6:0x191,_0x32ffe7:0x17a,_0x2fa38e:0x18d,_0x3b17a9:0x199,_0x2a7478:0x1d3,_0x4b799e:0x1a5,_0x307f00:0x1bb,_0x1e63bb:0x140,_0x29e7af:0x1a9,_0x791e6d:0x143,_0x693d47:0x165,_0x3ef52b:0x195,_0x1b5750:0x1d2,_0x325489:0x14c},_0x528edc={_0x18a66a:0x16b},_0x43fbcf={_0x328bb8:0x16a},_0x33c3fc={_0x18f6dd:0x1b3,_0x53c89a:0x152,_0x3a93fd:0x1ac},_0x3cd7d2=_0x28f6,_0x440da0={'vttpN':'while\x20(true)\x20{}','RmDuY':'xzfAE','BmOmb':function(_0x2a2fd3,_0xd08eb2){return _0x2a2fd3!==_0xd08eb2;},'EzUIG':function(_0x340a22,_0x344243){return _0x340a22(_0x344243);},'SmMtN':function(_0x337f9e,_0x3b0515){return _0x337f9e+_0x3b0515;},'fKxSY':function(_0x195741,_0x52b32a){return _0x195741+_0x52b32a;},'KrjdX':'return\x20(function()\x20','AhbHc':'{}.constructor(\x22return\x20this\x22)(\x20)','oNIJY':function(_0x191044){return _0x191044();},'GfDLx':function(_0x4875c8,_0x152f78){return _0x4875c8===_0x152f78;},'JoBgB':'OWVKQ','mhJEa':function(_0x453ab6,_0x16c429){return _0x453ab6!==_0x16c429;},'YeEoF':_0x3cd7d2(0x171),'sarBz':_0x3cd7d2(0x14f),'RNFue':function(_0x246a87,_0x22b3a4){return _0x246a87(_0x22b3a4);},'wsYCr':_0x3cd7d2(0x1a4),'HOsce':function(_0x2e3af9,_0x369c9f){return _0x2e3af9+_0x369c9f;},'SFUwH':function(_0x1f3a98){return _0x1f3a98();},'SZbzF':_0x3cd7d2(_0x5eb344._0x3b6f4c),'PymKV':_0x3cd7d2(0x14e),'pBQVO':'input','RPtGA':function(_0x145fa1){return _0x145fa1();},'PcUDH':function(_0x459d9f,_0xcc5dee){return _0x459d9f(_0xcc5dee);},'VsgXq':_0x3cd7d2(0x1a1),'GPyMW':_0x3cd7d2(_0x5eb344._0x538939),'nLnKz':_0x3cd7d2(0x175),'uGIAB':_0x3cd7d2(0x1b9),'Ayvag':_0x3cd7d2(_0x5eb344._0x4371f1),'rePZY':'trace','retLI':function(_0x572ed6,_0x10d1eb){return _0x572ed6<_0x10d1eb;},'DGtRc':function(_0xc9c503,_0x17652f,_0x1acc48){return _0xc9c503(_0x17652f,_0x1acc48);},'ccnIZ':function(_0x4aa850){return _0x4aa850();},'ImhgI':function(_0x147a90,_0x5b2cab){return _0x147a90===_0x5b2cab;},'YiOkI':_0x3cd7d2(_0x5eb344._0x4cdcbc)},_0x4508e2=(function(){const _0x73364b={_0xe504f0:0x14b,_0x4df594:0x182},_0x43cbfb={_0x2e35cf:0x17b};let _0x19d2fa=!![];return function(_0xb20b33,_0x152eaf){const _0x448beb={_0x1d386a:0x18b,_0x514201:0x197},_0x3d5083=_0x28f6,_0x533ad8={'pkRgT':_0x440da0[_0x3d5083(_0x73364b._0xe504f0)],'vbwgP':'Psyrl','eIfud':_0x440da0[_0x3d5083(_0x73364b._0x4df594)],'JDvcv':function(_0x1c0226,_0x16d6cb){const _0x496345=_0x3d5083;return _0x440da0[_0x496345(_0x43cbfb._0x2e35cf)](_0x1c0226,_0x16d6cb);},'RdbVf':_0x3d5083(0x1a6)},_0x2abc40=_0x19d2fa?function(){const _0x17eb5c=_0x3d5083;if(_0x533ad8['vbwgP']===_0x533ad8[_0x17eb5c(0x15b)])return _0x5bd1d1;else{if(_0x152eaf){if(_0x533ad8['JDvcv'](_0x533ad8[_0x17eb5c(_0x448beb._0x1d386a)],'qmyAN'))return function(_0x3ca851){}['constructor'](fAguFh['pkRgT'])[_0x17eb5c(0x197)]('counter');else{const _0x6687e4=_0x152eaf[_0x17eb5c(_0x448beb._0x514201)](_0xb20b33,arguments);return _0x152eaf=null,_0x6687e4;}}}}:function(){};return _0x19d2fa=![],_0x2abc40;};}()),_0x12dc08=(function(){const _0xdb0717=_0x3cd7d2,_0x4c3c1={'AZEua':function(_0x6d4d72,_0x46f54d){const _0x3ad5d7=_0x28f6;return _0x440da0[_0x3ad5d7(0x1ba)](_0x6d4d72,_0x46f54d);},'ooXYk':'PVWSs','dPkLX':_0x440da0[_0xdb0717(0x1ad)]};if(_0x440da0[_0xdb0717(0x17f)](_0x440da0[_0xdb0717(_0x33c3fc._0x18f6dd)],_0x440da0[_0xdb0717(0x154)])){let _0x58e5a3=!![];return function(_0x2868a3,_0x5bc2e1){const _0x25b548=_0xdb0717;if(_0x4c3c1[_0x25b548(0x18f)](_0x4c3c1['ooXYk'],_0x4c3c1['dPkLX']))return![];else{const _0x4d5bb0=_0x58e5a3?function(){const _0x2ae85c=_0x25b548;if(_0x5bc2e1){const _0x26b2b9=_0x5bc2e1[_0x2ae85c(0x197)](_0x2868a3,arguments);return _0x5bc2e1=null,_0x26b2b9;}}:function(){};return _0x58e5a3=![],_0x4d5bb0;}};}else{const _0xd27a1e=aNEEEn[_0xdb0717(0x1bc)](_0x22e19f,aNEEEn['SmMtN'](aNEEEn[_0xdb0717(_0x33c3fc._0x53c89a)](aNEEEn[_0xdb0717(0x1a8)],aNEEEn[_0xdb0717(_0x33c3fc._0x3a93fd)]),');'));_0x1e740b=aNEEEn[_0xdb0717(0x158)](_0xd27a1e);}}());function _0x1e3a67(){const _0x58de4b={_0x562f42:0x1c4,_0x41ec1a:0x19d,_0x5e9a25:0x167},_0x5961e8={_0x912a6a:0x178},_0x1a0980={_0xbffb07:0x142},_0x12177d=_0x3cd7d2,_0x50daea={'joxhl':function(_0x10854a,_0x3c29c0){const _0x3ba011=_0x28f6;return _0x440da0[_0x3ba011(0x16a)](_0x10854a,_0x3c29c0);},'gPnne':_0x440da0['wsYCr'],'MAqCl':function(_0x106aba,_0x456368){return _0x106aba+_0x456368;},'SLfLS':'chain','rwlls':function(_0x226c72,_0x1d9712){const _0x11bc5a=_0x28f6;return _0x440da0[_0x11bc5a(0x1ca)](_0x226c72,_0x1d9712);},'Ruvvr':function(_0x386550){const _0x370c95=_0x28f6;return _0x440da0[_0x370c95(0x194)](_0x386550);},'DaKRL':_0x440da0[_0x12177d(0x1bf)],'fSyXc':_0x440da0['PymKV'],'KDQZw':function(_0x429303,_0x18ebcb){return _0x429303+_0x18ebcb;},'VYfTA':_0x440da0[_0x12177d(_0x4ccbe0._0x1997a3)],'ztiOL':function(_0x1bb49b,_0x5f5cf1){const _0x4744c0=_0x12177d;return _0x440da0[_0x4744c0(_0x43fbcf._0x328bb8)](_0x1bb49b,_0x5f5cf1);},'yzXxz':function(_0x58f745){const _0x191703=_0x12177d;return _0x440da0[_0x191703(_0x528edc._0x18a66a)](_0x58f745);},'ErCwL':function(_0x5427d2,_0x3c67ee){const _0x3f2e14=_0x12177d;return _0x440da0[_0x3f2e14(_0x1a0980._0xbffb07)](_0x5427d2,_0x3c67ee);},'TsQju':function(_0x30c30d,_0x30f5d8){return _0x30c30d+_0x30f5d8;},'SoWZT':_0x440da0[_0x12177d(0x1a8)],'SUkXx':_0x440da0[_0x12177d(0x1ac)],'PVFww':function(_0x1c9d37,_0x38a968){return _0x1c9d37!==_0x38a968;},'eyeSA':'nyoTI','YyngR':_0x440da0[_0x12177d(0x183)],'IhQDn':_0x440da0[_0x12177d(_0x4ccbe0._0x179879)],'UrYwQ':_0x440da0[_0x12177d(_0x4ccbe0._0x22776e)],'nIDpd':_0x440da0['uGIAB'],'LOdVL':_0x440da0[_0x12177d(_0x4ccbe0._0x16bb8c)],'sZrrO':_0x440da0['rePZY'],'TXjeh':function(_0x3f5f1c,_0x1bb204){const _0x39cb99=_0x12177d;return _0x440da0[_0x39cb99(_0x5961e8._0x912a6a)](_0x3f5f1c,_0x1bb204);}};(function(){_0x4508e2(this,function(){const _0x20afa6=_0x28f6,_0x22436e=new RegExp(_0x20afa6(_0x58de4b._0x562f42)),_0x5270f2=new RegExp(_0x20afa6(0x14e),'i'),_0x2da8b1=_0x50daea['joxhl'](_0x3ccf94,_0x50daea[_0x20afa6(_0x58de4b._0x41ec1a)]);!_0x22436e[_0x20afa6(0x140)](_0x50daea['MAqCl'](_0x2da8b1,_0x50daea['SLfLS']))||!_0x5270f2['test'](_0x50daea[_0x20afa6(_0x58de4b._0x5e9a25)](_0x2da8b1,_0x20afa6(0x1a2)))?_0x50daea[_0x20afa6(0x1a5)](_0x2da8b1,'0'):_0x50daea[_0x20afa6(0x1ce)](_0x3ccf94);})();}());const _0x179035=_0x440da0['DGtRc'](_0x12dc08,this,function(){const _0x2cf0b1=_0x12177d;let _0x197277;try{const _0x3c6e58=_0x50daea[_0x2cf0b1(_0x53ed47._0xac40e6)](Function,_0x50daea['TsQju'](_0x50daea[_0x2cf0b1(_0x53ed47._0x32ffe7)]+_0x50daea['SUkXx'],');'));_0x197277=_0x3c6e58();}catch(_0x44a111){if(_0x50daea[_0x2cf0b1(_0x53ed47._0x2fa38e)](_0x50daea[_0x2cf0b1(0x199)],_0x50daea[_0x2cf0b1(_0x53ed47._0x3b17a9)])){const _0x4d99ef=new _0x54979d(rPOOQr[_0x2cf0b1(_0x53ed47._0x2a7478)]),_0x440e36=new _0x545633(rPOOQr['fSyXc'],'i'),_0x3a74b3=rPOOQr[_0x2cf0b1(_0x53ed47._0x4b799e)](_0x1ea73f,rPOOQr[_0x2cf0b1(0x19d)]);!_0x4d99ef['test'](rPOOQr['MAqCl'](_0x3a74b3,rPOOQr[_0x2cf0b1(_0x53ed47._0x307f00)]))||!_0x440e36[_0x2cf0b1(_0x53ed47._0x1e63bb)](rPOOQr[_0x2cf0b1(_0x53ed47._0x29e7af)](_0x3a74b3,rPOOQr[_0x2cf0b1(0x19b)]))?rPOOQr['ztiOL'](_0x3a74b3,'0'):rPOOQr[_0x2cf0b1(_0x53ed47._0x791e6d)](_0x50feab);}else _0x197277=window;}const _0x22e31f=_0x197277[_0x2cf0b1(0x1d6)]=_0x197277[_0x2cf0b1(0x1d6)]||{},_0x111666=[_0x2cf0b1(_0x53ed47._0x693d47),_0x50daea[_0x2cf0b1(_0x53ed47._0x3ef52b)],_0x50daea[_0x2cf0b1(0x1b2)],_0x50daea[_0x2cf0b1(0x1d7)],_0x50daea[_0x2cf0b1(_0x53ed47._0x1b5750)],_0x50daea[_0x2cf0b1(0x19a)],_0x50daea[_0x2cf0b1(_0x53ed47._0x325489)]];for(let _0x3fd84c=0x14bd+-0x266e+0x11b1;_0x50daea['TXjeh'](_0x3fd84c,_0x111666[_0x2cf0b1(0x192)]);_0x3fd84c++){const _0x282796=_0x12dc08['constructor'][_0x2cf0b1(0x1aa)][_0x2cf0b1(0x145)](_0x12dc08),_0x41706f=_0x111666[_0x3fd84c],_0x4c8acd=_0x22e31f[_0x41706f]||_0x282796;_0x282796[_0x2cf0b1(0x1ab)]=_0x12dc08[_0x2cf0b1(0x145)](_0x12dc08),_0x282796[_0x2cf0b1(0x176)]=_0x4c8acd[_0x2cf0b1(0x176)][_0x2cf0b1(0x145)](_0x4c8acd),_0x22e31f[_0x41706f]=_0x282796;}});_0x440da0[_0x12177d(0x1d1)](_0x179035);debugger;setTimeout(_0x1e3a67,-0x425*-0x3+0xe26+-0x1a31);}try{if(_0x440da0['ImhgI'](_0x440da0[_0x3cd7d2(_0x5eb344._0x354496)],_0x3cd7d2(_0x5eb344._0x4d4f41)))_0x440da0[_0x3cd7d2(0x194)](_0x1e3a67);else{const _0x3a1c82=_0x8ea2c8[_0x3cd7d2(0x197)](_0x2bddb7,arguments);return _0x26e8be=null,_0x3a1c82;}}catch(_0x31efde){}}()));function _0x3ccf94(_0x5ea5f4){const _0x1878e0={_0x1e38e9:0x19f,_0x4574c7:0x1be,_0x471122:0x148,_0xe8536a:0x1c2,_0x1986f9:0x196,_0x400254:0x197,_0x52d04b:0x15e},_0x49cd23={_0x122891:0x198,_0x4d653a:0x185,_0x4a5678:0x172,_0x50a0ba:0x1c7,_0x2eb030:0x192,_0x33ce66:0x162,_0x35baa1:0x181,_0x538ed3:0x186,_0x5a787b:0x197,_0xee1a89:0x157},_0x20ea44={_0x1435b9:0x173,_0x1fcfb4:0x172,_0x7790a8:0x1aa,_0x529df2:0x145,_0x91896:0x145},_0x5d277e=_0x28f6,_0x3ce70f={'XBhps':function(_0x254793,_0x35dcfa){return _0x254793!==_0x35dcfa;},'Vpwop':'gALTm','VoDFW':function(_0x1b62d3,_0x257e9e){return _0x1b62d3===_0x257e9e;},'wtHQT':_0x5d277e(0x17d),'Warmh':'counter','bEgju':function(_0x68f7a9,_0x2de4ba){return _0x68f7a9!==_0x2de4ba;},'iuzUm':function(_0x269af0,_0x111499){return _0x269af0+_0x111499;},'swIbc':function(_0x34cb09,_0x3783e9){return _0x34cb09/_0x3783e9;},'UyuwM':function(_0x26867d,_0x2e5e49){return _0x26867d%_0x2e5e49;},'sLEhA':_0x5d277e(_0x1878e0._0x1e38e9),'wmxJt':_0x5d277e(0x1c6),'kUwLo':_0x5d277e(0x1af),'qNJSE':_0x5d277e(_0x1878e0._0x4574c7),'iUVbG':function(_0x48fb18,_0x3cecda){return _0x48fb18(_0x3cecda);},'tsvbW':function(_0x489bbf){return _0x489bbf();},'WYQCF':_0x5d277e(_0x1878e0._0x471122),'GBIiy':'aJxjK','nLJxf':_0x5d277e(_0x1878e0._0xe8536a),'fELqb':_0x5d277e(0x1c9),'UAhQy':function(_0x245046,_0x213087){return _0x245046(_0x213087);}};function _0x3791be(_0x1824e2){const _0x33a3f5=_0x5d277e;if(_0x3ce70f[_0x33a3f5(_0x49cd23._0x122891)](typeof _0x1824e2,_0x3ce70f['wtHQT'])){if(_0x3ce70f[_0x33a3f5(0x1a3)](_0x33a3f5(0x185),_0x33a3f5(_0x49cd23._0x4d653a))){const _0x2b301d=_0x43c616['apply'](_0x280237,arguments);return _0x2909fb=null,_0x2b301d;}else return function(_0xdaa7bf){}[_0x33a3f5(_0x49cd23._0x4a5678)](_0x33a3f5(0x16c))[_0x33a3f5(0x197)](_0x3ce70f['Warmh']);}else _0x3ce70f[_0x33a3f5(0x19c)](_0x3ce70f[_0x33a3f5(_0x49cd23._0x50a0ba)]('',_0x3ce70f[_0x33a3f5(0x16e)](_0x1824e2,_0x1824e2))[_0x33a3f5(_0x49cd23._0x2eb030)],-0x1993*-0x1+0x71f*-0x5+0x1*0xa09)||_0x3ce70f[_0x33a3f5(0x198)](_0x3ce70f[_0x33a3f5(_0x49cd23._0x33ce66)](_0x1824e2,0x2538+-0xc8b+-0x1*0x1899),-0xe4*-0x20+0x22f9*0x1+-0x3f79*0x1)?function(){return!![];}['constructor'](_0x3ce70f[_0x33a3f5(0x13e)]+_0x3ce70f[_0x33a3f5(_0x49cd23._0x35baa1)])[_0x33a3f5(_0x49cd23._0x538ed3)](_0x3ce70f[_0x33a3f5(0x149)]):function(){const _0x374da8=_0x33a3f5;if(_0x3ce70f['XBhps'](_0x374da8(_0x20ea44._0x1435b9),_0x3ce70f[_0x374da8(0x164)])){const _0x378935=_0x1b57fe[_0x374da8(_0x20ea44._0x1fcfb4)][_0x374da8(_0x20ea44._0x7790a8)][_0x374da8(_0x20ea44._0x529df2)](_0x12d7a7),_0x39f83d=_0x100258[_0xacdae1],_0x439d18=_0xea859d[_0x39f83d]||_0x378935;_0x378935[_0x374da8(0x1ab)]=_0x2c06fa['bind'](_0x76ed7e),_0x378935[_0x374da8(0x176)]=_0x439d18[_0x374da8(0x176)][_0x374da8(_0x20ea44._0x91896)](_0x439d18),_0x79c74f[_0x39f83d]=_0x378935;}else return![];}[_0x33a3f5(0x172)](_0x3ce70f[_0x33a3f5(0x13e)]+_0x3ce70f[_0x33a3f5(_0x49cd23._0x35baa1)])[_0x33a3f5(_0x49cd23._0x5a787b)](_0x3ce70f[_0x33a3f5(_0x49cd23._0xee1a89)]);_0x3ce70f[_0x33a3f5(0x1c0)](_0x3791be,++_0x1824e2);}try{if(_0x3ce70f['bEgju'](_0x3ce70f[_0x5d277e(0x168)],_0x3ce70f['GBIiy'])){if(_0x5ea5f4)return _0x3791be;else{if(_0x3ce70f['nLJxf']!==_0x3ce70f[_0x5d277e(_0x1878e0._0x1986f9)])_0x3ce70f[_0x5d277e(0x1b7)](_0x3791be,0x1f40+0x23c1+-0x4301*0x1);else{if(_0x4b6f36){const _0x173b13=_0x3e3865[_0x5d277e(_0x1878e0._0x400254)](_0x53d5fe,arguments);return _0x2d25d6=null,_0x173b13;}}}}else _0x3ce70f[_0x5d277e(_0x1878e0._0x52d04b)](_0x4a4c07);}catch(_0x4c4557){}}
+<script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Common Elements ---
+    // --- UI Elements ---
+    const viewerContainer = document.getElementById('viewer-container');
     const statusText = document.getElementById('status-text');
     const spinner = document.querySelector('#status .spinner');
     
-    // --- Helper functions ---
-    const setupUploadArea = (areaId, inputId, onFileSelect) => { const area = document.getElementById(areaId); const input = document.getElementById(inputId); if (!area || !input) return; area.addEventListener('click', () => input.click()); ['dragover', 'dragleave', 'drop'].forEach(eventName => { area.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }); }); area.addEventListener('dragover', () => area.classList.add('dragover')); area.addEventListener('dragleave', () => area.classList.remove('dragover')); area.addEventListener('drop', e => { area.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) { input.files = e.dataTransfer.files; onFileSelect(input.files[0]); } }); input.addEventListener('change', () => { if (input.files.length > 0) onFileSelect(input.files[0]); }); };
-    const downloadData = (blob, filename) => { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = filename; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a); };
-    const downloadImageFromURL = (url, filename) => { const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); };
-
-    // --- Tool Switching ---
-    const converter3DTool = document.getElementById('converter-3d-tool');
-    const sketcherTool = document.getElementById('sketcher-tool');
-    const resizerTool = document.getElementById('resizer-tool');
-    const showConverter3DBtn = document.getElementById('show-converter-3d-btn');
-    const showSketcherBtn = document.getElementById('show-sketcher-btn');
-    const showResizerBtn = document.getElementById('show-resizer-btn');
-    const switchTool = (activeBtn, activeTool) => { [showConverter3DBtn, showSketcherBtn, showResizerBtn].forEach(btn => btn.classList.remove('active')); [converter3DTool, sketcherTool, resizerTool].forEach(tool => tool.classList.remove('active')); activeBtn.classList.add('active'); activeTool.classList.add('active'); statusText.textContent = 'Upload an image to begin.'; };
-    showConverter3DBtn.addEventListener('click', () => switchTool(showConverter3DBtn, converter3DTool));
-    showSketcherBtn.addEventListener('click', () => switchTool(showSketcherBtn, sketcherTool));
-    showResizerBtn.addEventListener('click', () => switchTool(showResizerBtn, resizerTool));
-
-    // --- Image to 3D Converter Logic ---
-    const converter3D = {
-        originalPreview: document.getElementById('converter-3d-original-preview'),
-        previewContainer: document.getElementById('converter-3d-preview-container'),
-        depthSlider: document.getElementById('converter-3d-depth'),
-        detailSlider: document.getElementById('converter-3d-detail'),
-        generateBtn: document.getElementById('converter-3d-generate-btn'),
-        resetBtn: document.getElementById('converter-3d-reset-btn'),
-        imageBtn: document.getElementById('converter-3d-image-btn'),
-        videoBtn: document.getElementById('converter-3d-video-btn'),
-        modelBtn: document.getElementById('converter-3d-model-btn'),
-        originalImage: null, scene: null, camera: null, renderer: null, mesh: null, animationId: null,
-        init() {
-            setupUploadArea('converter-3d-upload-area', 'converter-3d-file-input', this.handleFile.bind(this));
-            this.generateBtn.addEventListener('click', this.generate3D.bind(this));
-            this.resetBtn.addEventListener('click', () => this.mesh && this.fitCameraToObject());
-            this.imageBtn.addEventListener('click', this.exportImage.bind(this));
-            this.videoBtn.addEventListener('click', this.exportVideo.bind(this));
-            this.modelBtn.addEventListener('click', this.exportGLB.bind(this));
-            this.depthSlider.addEventListener('change', () => this.originalImage && this.generate3D());
-            this.detailSlider.addEventListener('change', () => this.originalImage && this.generate3D());
-            this.init3DScene();
-            window.addEventListener('resize', this.onWindowResize.bind(this), false);
-        },
-        handleFile(file) { const reader = new FileReader(); reader.onload = e => { this.originalImage = new Image(); this.originalImage.onload = () => { this.generateBtn.disabled = false; this.resetBtn.disabled = true; this.imageBtn.disabled = true; this.videoBtn.disabled = true; this.modelBtn.disabled = true; if (this.mesh) this.scene.remove(this.mesh); if(this.renderer) this.renderer.render(this.scene, this.camera); statusText.textContent = 'Image loaded. Click "Generate 3D".'; }; this.originalImage.src = e.target.result; this.originalPreview.src = e.target.result; }; reader.readAsDataURL(file); },
-        init3DScene() { const w = this.previewContainer.clientWidth; const h = 300; this.scene = new THREE.Scene(); this.scene.background = new THREE.Color(0xf0f0f0); this.camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000); this.camera.position.z = 150; this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); this.renderer.setSize(w, h); this.previewContainer.innerHTML = ''; this.previewContainer.appendChild(this.renderer.domElement); this.scene.add(new THREE.AmbientLight(0xcccccc, 0.5)); const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); directionalLight.position.set(1, 1, 1); this.scene.add(directionalLight); let isDragging = false; let previousMousePosition = { x: 0, y: 0 }; this.renderer.domElement.addEventListener('mousedown', e => isDragging = true); this.renderer.domElement.addEventListener('mouseup', e => isDragging = false); this.renderer.domElement.addEventListener('mouseleave', e => isDragging = false); this.renderer.domElement.addEventListener('mousemove', e => { if (!isDragging || !this.mesh) return; const deltaMove = { x: e.offsetX - previousMousePosition.x, y: e.offsetY - previousMousePosition.y }; this.mesh.rotation.y += deltaMove.x * 0.01; this.mesh.rotation.x += deltaMove.y * 0.01; previousMousePosition = { x: e.offsetX, y: e.offsetY }; }); },
-        generate3D() { if (!this.originalImage) return; statusText.textContent = 'Generating 3D model...'; spinner.classList.add('active'); setTimeout(() => { if (this.mesh) this.scene.remove(this.mesh); if (this.animationId) cancelAnimationFrame(this.animationId); const detail = parseInt(this.detailSlider.value); const geometry = new THREE.PlaneGeometry(this.originalImage.width, this.originalImage.height, detail - 1, detail - 1); const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); canvas.width = this.originalImage.width; canvas.height = this.originalImage.height; ctx.drawImage(this.originalImage, 0, 0); const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); const data = imageData.data; const vertices = geometry.attributes.position.array; for (let i = 0, j = 0, l = vertices.length; i < l; i++, j += 3) { const x = Math.round((vertices[j] / canvas.width + 0.5) * canvas.width); const y = Math.round((-vertices[j + 1] / canvas.height + 0.5) * canvas.height); const pixelIndex = (y * canvas.width + x) * 4; const brightness = (data[pixelIndex] + data[pixelIndex + 1] + data[pixelIndex + 2]) / 3 / 255; vertices[j + 2] = brightness * this.depthSlider.value; } geometry.attributes.position.needsUpdate = true; geometry.computeVertexNormals(); const texture = new THREE.TextureLoader().load(this.originalImage.src, () => this.renderer.render(this.scene, this.camera)); const material = new THREE.MeshStandardMaterial({ map: texture, metalness: 0.2, roughness: 0.8 }); this.mesh = new THREE.Mesh(geometry, material); this.scene.add(this.mesh); this.fitCameraToObject(); const animate = () => { this.animationId = requestAnimationFrame(animate); this.renderer.render(this.scene, this.camera); }; animate(); this.resetBtn.disabled = false; this.imageBtn.disabled = false; this.videoBtn.disabled = false; this.modelBtn.disabled = false; spinner.classList.remove('active'); statusText.textContent = '3D model generated. Drag to rotate. You can now export.'; }, 50); },
-        fitCameraToObject() { const box = new THREE.Box3().setFromObject(this.mesh); const size = box.getSize(new THREE.Vector3()); const center = box.getCenter(new THREE.Vector3()); const maxSize = Math.max(size.x, size.y, size.z); const fitHeightDistance = maxSize / (2 * Math.atan(Math.PI * this.camera.fov / 360)); const fitWidthDistance = fitHeightDistance / this.camera.aspect; const distance = 1.3 * Math.max(fitHeightDistance, fitWidthDistance); this.camera.near = distance / 100; this.camera.far = distance * 100; this.camera.updateProjectionMatrix(); this.camera.position.copy(center); this.camera.position.z = distance; this.camera.lookAt(center); this.mesh.rotation.set(0, 0, 0); },
-        exportImage() { if (!this.renderer) return; const dataURL = this.renderer.domElement.toDataURL('image/png'); downloadImageFromURL(dataURL, 'auronuel-3d-image.png'); },
-        exportVideo() { if (!this.mesh) return; statusText.textContent = 'Recording video (5 seconds)...'; spinner.classList.add('active'); const stream = this.renderer.domElement.captureStream(30); const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); const chunks = []; recorder.ondataavailable = e => chunks.push(e.data); recorder.onstop = () => { const blob = new Blob(chunks, { type: 'video/webm' }); downloadData(blob, 'auronuel-3d-video.webm'); statusText.textContent = 'Video export complete.'; spinner.classList.remove('active'); }; recorder.start(); const originalRotationY = this.mesh.rotation.y; const startTime = Date.now(); const recordAnimation = () => { const elapsedTime = Date.now() - startTime; if (elapsedTime >= 5000) { recorder.stop(); this.mesh.rotation.y = originalRotationY; return; } this.mesh.rotation.y += 0.02; this.renderer.render(this.scene, this.camera); requestAnimationFrame(recordAnimation); }; recordAnimation(); },
-        exportGLB() { if (!this.mesh) return; statusText.textContent = 'Exporting 3D model...'; spinner.classList.add('active'); const exporter = new THREE.GLTFExporter(); exporter.parse( this.mesh, (gltf) => { const blob = new Blob([gltf], { type: 'application/octet-stream' }); downloadData(blob, 'auronuel-3d-model.glb'); statusText.textContent = '3D Model export complete.'; spinner.classList.remove('active'); }, { binary: true } ); },
-        onWindowResize() { if (!this.camera || !this.renderer) return; const w = this.previewContainer.clientWidth; const h = 300; this.camera.aspect = w / h; this.camera.updateProjectionMatrix(); this.renderer.setSize(w, h); }
-    };
-    converter3D.init();
-
-    // --- Image to Sketch Logic ---
-    const sketcher = {
-        thresholdSlider: document.getElementById('sketcher-threshold'), originalPreview: document.getElementById('sketcher-original-preview'), sketchPreview: document.getElementById('sketcher-sketch-preview'), actionBtn: document.getElementById('sketcher-action-btn'), downloadBtn: document.getElementById('sketcher-download-btn'), originalImage: null,
-        init() { setupUploadArea('sketcher-upload-area', 'sketcher-file-input', this.handleFile.bind(this)); this.actionBtn.addEventListener('click', this.convertToSketch.bind(this)); this.thresholdSlider.addEventListener('change', () => this.originalImage && this.convertToSketch()); this.downloadBtn.addEventListener('click', () => downloadImageFromURL(this.sketchPreview.src, 'sketch-image.png')); },
-        handleFile(file) { const reader = new FileReader(); reader.onload = e => { this.originalImage = new Image(); this.originalImage.onload = () => { this.actionBtn.disabled = false; this.downloadBtn.disabled = true; this.sketchPreview.src = ''; statusText.textContent = 'Image loaded. Click "Convert to Sketch" or adjust threshold.'; }; this.originalImage.src = e.target.result; this.originalPreview.src = e.target.result; }; reader.readAsDataURL(file); },
-        convertToSketch() { if (!this.originalImage) return; statusText.textContent = 'Applying sketch effect...'; spinner.classList.add('active'); setTimeout(() => { const w = this.originalImage.width; const h = this.originalImage.height; const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(this.originalImage, 0, 0, w, h); const imageData = ctx.getImageData(0, 0, w, h); const grayscale = this.toGrayscale(imageData); const vertical = this.convolve(grayscale, w, h, [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]); const horizontal = this.convolve(grayscale, w, h, [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]); const finalData = ctx.createImageData(w, h); const threshold = parseInt(this.thresholdSlider.value); for (let i = 0; i < finalData.data.length; i += 4) { const magnitude = Math.sqrt(Math.pow(vertical[i/4], 2) + Math.pow(horizontal[i/4], 2)); const color = magnitude > threshold ? 0 : 255; finalData.data[i] = color; finalData.data[i+1] = color; finalData.data[i+2] = color; finalData.data[i+3] = 255; } ctx.putImageData(finalData, 0, 0); this.sketchPreview.src = canvas.toDataURL('image/png'); this.downloadBtn.disabled = false; statusText.textContent = 'Sketch conversion complete.'; spinner.classList.remove('active'); }, 50); },
-        toGrayscale(imageData) { const grayscale = new Uint8ClampedArray(imageData.width * imageData.height); for (let i = 0, j = 0; i < imageData.data.length; i += 4, j++) { grayscale[j] = 0.2126 * imageData.data[i] + 0.7152 * imageData.data[i+1] + 0.0722 * imageData.data[i+2]; } return grayscale; },
-        convolve(pixels, width, height, kernel) { const out = new Float32Array(pixels.length); const k_w = kernel[0].length; const k_h = kernel.length; const h_k_w = Math.floor(k_w / 2); const h_k_h = Math.floor(k_h / 2); for (let y = 0; y < height; y++) { for (let x = 0; x < width; x++) { let sum = 0; for (let j = 0; j < k_h; j++) { for (let i = 0; i < k_w; i++) { const p_x = x + i - h_k_w; const p_y = y + j - h_k_h; if (p_x >= 0 && p_x < width && p_y >= 0 && p_y < height) { sum += pixels[p_y * width + p_x] * kernel[j][i]; } } } out[y * width + x] = sum; } } return out; }
-    };
-    sketcher.init();
-
-    // --- Image Resizer Logic ---
-    const resizer = {
-        widthInput: document.getElementById('resizer-width'), heightInput: document.getElementById('resizer-height'), aspectRatioCheckbox: document.getElementById('resizer-aspect-ratio'), originalPreview: document.getElementById('resizer-original-preview'), resizedPreview: document.getElementById('resizer-resized-preview'), actionBtn: document.getElementById('resizer-action-btn'), downloadBtn: document.getElementById('resizer-download-btn'), originalImage: null, originalRatio: 1,
-        init() { setupUploadArea('resizer-upload-area', 'resizer-file-input', this.handleFile.bind(this)); this.widthInput.addEventListener('input', () => this.onDimensionChange('width')); this.heightInput.addEventListener('input', () => this.onDimensionChange('height')); this.actionBtn.addEventListener('click', this.resize.bind(this)); this.downloadBtn.addEventListener('click', () => downloadImageFromURL(this.resizedPreview.src, 'resized-image.png')); },
-        handleFile(file) { const reader = new FileReader(); reader.onload = e => { this.originalImage = new Image(); this.originalImage.onload = () => { this.originalRatio = this.originalImage.width / this.originalImage.height; this.widthInput.value = this.originalImage.width; this.heightInput.value = this.originalImage.height; this.actionBtn.disabled = false; this.downloadBtn.disabled = true; this.resizedPreview.src = ''; }; this.originalImage.src = e.target.result; this.originalPreview.src = e.target.result; statusText.textContent = 'Image loaded. Adjust dimensions and click Resize.'; }; reader.readAsDataURL(file); },
-        onDimensionChange(changed) { if (!this.aspectRatioCheckbox.checked || !this.originalRatio) return; if (changed === 'width') { this.heightInput.value = Math.round(this.widthInput.value / this.originalRatio); } else { this.widthInput.value = Math.round(this.heightInput.value * this.originalRatio); } },
-        resize() { if (!this.originalImage) return; statusText.textContent = 'Resizing...'; spinner.classList.add('active'); setTimeout(() => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); canvas.width = this.widthInput.value; canvas.height = this.heightInput.value; ctx.drawImage(this.originalImage, 0, 0, canvas.width, canvas.height); this.resizedPreview.src = canvas.toDataURL('image/png'); this.downloadBtn.disabled = false; statusText.textContent = 'Resize complete.'; spinner.classList.remove('active'); }, 50); }
-    };
-    resizer.init();
+    // Controls
+    const modelSelect = document.getElementById('model-select');
+    const logoUploadBtn = document.getElementById('logo-upload-btn');
+    const logoUploadInput = document.getElementById('logo-upload-input');
+    const bgColorPicker = document.getElementById('bg-color');
+    const baseColorPicker = document.getElementById('base-color');
+    const metallicSlider = document.getElementById('metallic-slider');
+    const roughnessSlider = document.getElementById('roughness-slider');
+    const logoScaleSlider = document.getElementById('logo-scale-slider');
+    const logoOffsetXSlider = document.getElementById('logo-offset-x-slider');
+    const logoOffsetYSlider = document.getElementById('logo-offset-y-slider');
     
-    // --- Sidebar toggle ---
+    // Export
+    const exportBtn = document.getElementById('export-btn');
+    const exportModal = document.getElementById('export-modal');
+    const exportModalClose = document.getElementById('export-modal-close');
+    const exportPngBtn = document.getElementById('export-png-btn');
+    const exportVideoBtn = document.getElementById('export-video-btn');
+    const exportGlbBtn = document.getElementById('export-glb-btn');
+
+    // --- State & 3D Variables ---
+    let scene, camera, renderer, controls, mainObject, material, defaultTexture;
+    let ffmpeg = null;
+    let ffmpegLoaded = false;
+    let animationFrameId = null;
+
+    // --- Utility Functions ---
+    const setStatus = (text, showSpinner = false) => {
+        statusText.textContent = text;
+        spinner.classList.toggle('active', showSpinner);
+    };
+
+    const downloadBlob = (blob, filename) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    // --- FFmpeg ---
+    const loadFFmpeg = async () => {
+        setStatus('Loading video engine...', true);
+        try {
+            // Check if FFmpeg constructor is available on the window
+            if (window.FFmpeg && typeof window.FFmpeg.createFFmpeg === 'function') {
+                ffmpeg = window.FFmpeg.createFFmpeg({ log: true });
+                await ffmpeg.load();
+                ffmpegLoaded = true;
+                setStatus('Ready. Select an object and upload your logo.');
+            } else {
+                 throw new Error('FFmpeg library not loaded or defined.');
+            }
+        } catch (err) {
+            console.error('FFmpeg load failed:', err);
+            ffmpegLoaded = false;
+            setStatus('Video engine failed. MP4 export disabled, WebM available.');
+        } finally {
+            spinner.classList.remove('active');
+        }
+    };
+    
+    // --- 3D Initialization ---
+    function init3D() {
+        // Scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(bgColorPicker.value);
+
+        // Camera
+        camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        // Renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+        renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        viewerContainer.appendChild(renderer.domElement);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+        
+        // Controls
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 2;
+        controls.maxDistance = 20;
+
+        // Material
+        defaultTexture = new THREE.TextureLoader().load('data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24"><path fill="gray" d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12l3.75 3.75l3.12-3.12c.39-.39.39-1.02 0-1.41M3 17.25V21h3.75l11.06-11.06l-3.75-3.75z"/></svg>'));
+        material = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(baseColorPicker.value),
+            metalness: parseFloat(metallicSlider.value),
+            roughness: parseFloat(roughnessSlider.value),
+            map: defaultTexture,
+        });
+
+        // Initial Object
+        createObject();
+        animate();
+    }
+
+    function createObject() {
+        if (mainObject) scene.remove(mainObject);
+
+        let geometry;
+        const modelType = modelSelect.value;
+
+        switch(modelType) {
+            case 'cylinder':
+                geometry = new THREE.CylinderGeometry(1, 1, 2, 64);
+                break;
+            case 'sphere':
+                geometry = new THREE.SphereGeometry(1.2, 64, 64);
+                break;
+            case 'plaque':
+                geometry = new THREE.BoxGeometry(2.5, 2.5, 0.2);
+                break;
+            case 'cube':
+            default:
+                geometry = new THREE.BoxGeometry(2, 2, 2);
+                break;
+        }
+
+        mainObject = new THREE.Mesh(geometry, material);
+        scene.add(mainObject);
+    }
+    
+    function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    
+    function handleResize() {
+        if (!renderer) return;
+        const width = viewerContainer.clientWidth;
+        const height = viewerContainer.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    }
+
+    function handleLogoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            new THREE.TextureLoader().load(e.target.result, (texture) => {
+                texture.encoding = THREE.sRGBEncoding;
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                material.map = texture;
+                material.needsUpdate = true;
+                setStatus('Logo applied successfully!');
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateMaterial() {
+        material.color.set(baseColorPicker.value);
+        material.metalness = parseFloat(metallicSlider.value);
+        material.roughness = parseFloat(roughnessSlider.value);
+    }
+    
+    function updateLogoTransform() {
+        if (material.map) {
+            const scale = parseFloat(logoScaleSlider.value);
+            const offsetX = parseFloat(logoOffsetXSlider.value);
+            const offsetY = parseFloat(logoOffsetYSlider.value);
+            material.map.repeat.set(scale, scale);
+            material.map.offset.set( (1 - scale) / 2 + offsetX, (1 - scale) / 2 + offsetY );
+        }
+    }
+
+    async function exportPNG() {
+        setStatus('Generating PNG...', true);
+        renderer.render(scene, camera);
+        const dataURL = renderer.domElement.toDataURL('image/png');
+        const blob = await (await fetch(dataURL)).blob();
+        downloadBlob(blob, 'logo-mockup.png');
+        setStatus('PNG downloaded!');
+        exportModal.classList.remove('active');
+    }
+
+    // --- **FIXED & ROBUST** VIDEO EXPORT FUNCTION ---
+    async function exportVideo() {
+        if (!mainObject) return;
+        
+        setStatus('Recording 360° video...', true);
+        exportModal.classList.remove('active');
+        
+        cancelAnimationFrame(animationFrameId);
+        controls.enabled = false;
+
+        const stream = renderer.domElement.captureStream(30);
+        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        const chunks = [];
+
+        recorder.ondataavailable = e => chunks.push(e.data);
+
+        recorder.onstop = async () => {
+            controls.enabled = true;
+            animate();
+
+            const webmBlob = new Blob(chunks, { type: 'video/webm' });
+
+            if (ffmpegLoaded) {
+                setStatus('Converting video to MP4...', true);
+                try {
+                    ffmpeg.FS('writeFile', 'input.webm', await FFmpeg.fetchFile(webmBlob));
+                    await ffmpeg.run('-i', 'input.webm', '-c:v', 'libx264', '-crf', '18', '-preset', 'fast', 'output.mp4');
+                    const data = ffmpeg.FS('readFile', 'output.mp4');
+                    const mp4Blob = new Blob([data.buffer], { type: 'video/mp4' });
+                    downloadBlob(mp4Blob, 'logo-animation.mp4');
+                    setStatus('MP4 video downloaded!');
+                } catch (err) {
+                    console.error("FFmpeg conversion failed, falling back to WebM.", err);
+                    setStatus('MP4 conversion failed! Downloading WebM instead.');
+                    downloadBlob(webmBlob, 'logo-animation.webm');
+                }
+            } else {
+                // If FFmpeg never loaded, download the WebM directly.
+                setStatus('Video engine not available. Downloading WebM video.');
+                downloadBlob(webmBlob, 'logo-animation.webm');
+            }
+        };
+
+        recorder.start();
+        
+        const originalRotationY = mainObject.rotation.y;
+        const startTime = Date.now();
+
+        const recordAnimation = () => {
+            const elapsedTime = Date.now() - startTime;
+            if (elapsedTime >= 5000) { // Record for 5 seconds
+                recorder.stop();
+                mainObject.rotation.y = originalRotationY;
+                return;
+            }
+            mainObject.rotation.y += 0.025;
+            renderer.render(scene, camera);
+            requestAnimationFrame(recordAnimation);
+        };
+        
+        recordAnimation();
+    }
+
+    function exportGLB() {
+        setStatus('Exporting 3D model...', true);
+        const exporter = new THREE.GLTFExporter();
+        exporter.parse(scene, (gltf) => {
+            const blob = new Blob([gltf], { type: 'model/gltf-binary' });
+            downloadBlob(blob, 'logo-model.glb');
+            setStatus('GLB model downloaded!');
+            exportModal.classList.remove('active');
+        }, { binary: true });
+    }
+
+    // --- Event Listeners ---
+    window.addEventListener('resize', handleResize);
+    modelSelect.addEventListener('change', createObject);
+    logoUploadBtn.addEventListener('click', () => logoUploadInput.click());
+    logoUploadInput.addEventListener('change', handleLogoUpload);
+    
+    bgColorPicker.addEventListener('input', () => scene.background.set(bgColorPicker.value));
+    baseColorPicker.addEventListener('input', updateMaterial);
+    metallicSlider.addEventListener('input', updateMaterial);
+    roughnessSlider.addEventListener('input', updateMaterial);
+
+    logoScaleSlider.addEventListener('input', updateLogoTransform);
+    logoOffsetXSlider.addEventListener('input', updateLogoTransform);
+    logoOffsetYSlider.addEventListener('input', updateLogoTransform);
+    
+    exportBtn.addEventListener('click', () => exportModal.classList.add('active'));
+    exportModalClose.addEventListener('click', () => exportModal.classList.remove('active'));
+    exportPngBtn.addEventListener('click', exportPNG);
+    exportVideoBtn.addEventListener('click', exportVideo);
+    exportGlbBtn.addEventListener('click', exportGLB);
+
     const hamburger = document.getElementById('hamburger-menu');
     const overlay = document.querySelector('.sidebar-overlay');
-    hamburger.addEventListener('click', () => { document.body.classList.toggle('sidebar-open'); });
-    overlay.addEventListener('click', () => { document.body.classList.remove('sidebar-open'); });
+    hamburger.addEventListener('click', () => document.body.classList.toggle('sidebar-open'));
+    overlay.addEventListener('click', () => document.body.classList.remove('sidebar-open'));
+
+    // --- Initial Calls ---
+    init3D();
+    loadFFmpeg(); // Proactively load the video engine on page start.
 });
 </script>
 </body>
