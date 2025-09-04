@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auronuel - Logo to 3D Model</title>
+    
+    <!-- 3D & Video Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js" defer></script>
+    
+    <!-- Main Site's CSS and FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="templatemo-glossy-touch.css">
+  
+    <style>
+        /* ======================================================= */
+        /*          STYLES FOR THE TOOL HEADER (BACK BUTTON)       */
+        /* ======================================================= */
+        .tool-header { padding: 20px 0; position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        .tool-header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .back-button { display: flex; align-items: center; gap: 8px; color: white; text-decoration: none; font-size: 1rem; font-weight: 500; padding: 10px 15px; border-radius: 10px; transition: background 0.3s ease; }
+        .back-button:hover { background: rgba(255, 255, 255, 0.15); }
+        .back-button i { font-size: 1.1rem; }
+        .header-spacer { width: 90px; }
+        .tool-header .logo { cursor: default; }
+
+        /* --- New & Modified Styles for 3D System (Themed) --- */
+        .mockup-content { padding: 40px 0; }
+        .main-layout { display: flex; flex-direction: row; gap: 30px; width: 100%; flex-wrap: wrap; }
+        .viewer-container { flex: 3; min-width: 300px; min-height: 500px; border-radius: 15px; position: relative; overflow: hidden; }
+        .viewer-container canvas { display: block; width: 100%; height: 100%; }
+        .controls-panel { flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 20px; }
+        .control-group { display: flex; flex-direction: column; gap: 10px; padding: 20px; } /* Using .glass for background */
+        .control-group h3 { margin: 0 0 10px 0; color: white; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .control-group label { font-size: 1rem; font-weight: 500; color: white; }
+        .control-item { display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; color: white; font-weight: bold; transition: all 0.2s ease; padding: 15px; } /* Using .glass for style */
+        .control-item i { margin-right: 8px; }
+        #status { margin-bottom: 20px; color: white; text-align: center; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 24px; width: 100%; padding: 12px; } /* Using .glass */
+        .spinner { display: none; width: 16px; height: 16px; border: 3px solid white; border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner.active { display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1003; backdrop-filter: blur(10px); }
+        .modal.active { display: flex; }
+        .modal-content { max-width: 400px; width: 90%; padding: 30px; } /* Using .glass */
+        .modal-content h2 { margin-top: 0; color: white; text-align: center; }
+        .modal-content button { display: block; width: 100%; margin-bottom: 15px; }
+        .modal-close { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 20px; color: white; }
+        select, input[type="color"], input[type="range"] { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; color: white; font-size: 16px; padding: 12px; font-family: inherit; width: 100%; box-sizing: border-box; }
+        select option { color: black; background: white; }
+        input[type="color"] { height: 48px; padding: 5px; }
+        input[type="file"] { display: none; }
+        input[type="range"] { -webkit-appearance: none; appearance: none; height: 8px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; transition: opacity .2s; cursor: pointer; padding: 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: white; border-radius: 50%; }
+        input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: white; border-radius: 50%; }
+        .how-to-guide { padding: 30px; } /* Using .glass */
+        .how-to-guide h2 { text-align: center; color: white; margin-top: 0; margin-bottom: 25px; font-size: 1.5rem; }
+        .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center; }
+        .step i { font-size: 2rem; color: white; margin-bottom: 10px; }
+        .step h3 { margin: 0 0 5px 0; font-size: 1rem; color: white; }
+        .step p { margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.8); line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <!-- Main Site Animated Background -->
+    <div class="bg-shapes">
+        <div class="shape">Auronuel</div><div class="shape"></div><div class="shape">Auronuel</div>
+        <div class="shape"></div><div class="shape">Auronuel</div><div class="shape"></div>
+    </div>
+
+    <!-- SIMPLE HEADER WITH BACK BUTTON -->
+    <header class="tool-header">
+        <div class="container tool-header-container">
+            <a href="javascript:history.back()" class="back-button"><i class="fas fa-arrow-left"></i><span>Back</span></a>
+            <div class="logo"><div class="logo-icon"><img src="images/auro.png" alt=""></div><span>Auronuel</span></div>
+            <div class="header-spacer"></div>
+        </div>
+    </header>
+
+    <!-- Page Content for 3D Tool -->
+    <div class="page active">
+        <div class="container">
+            <div class="mockup-content">
+                <section id="status" class="glass">
+                    <span id="status-text">Select an object and upload your logo to begin.</span>
+                    <span class="spinner"></span>
+                </section>
+
+                <div class="main-layout">
+                    <div class="viewer-container glass" id="viewer-container">
+                        <!-- Three.js Canvas will be inserted here -->
+                    </div>
+
+                    <div class="controls-panel">
+                        <div class="control-group glass">
+                            <h3>1. Scene Setup</h3>
+                            <label for="model-select">Object Model</label>
+                            <select id="model-select"><option value="cube">Cube</option><option value="cylinder">Cylinder</option><option value="sphere">Sphere</option><option value="plaque">Plaque</option></select>
+                            <label for="logo-upload-btn">Logo Image</label>
+                            <button id="logo-upload-btn" class="control-item glass"><i class="fas fa-upload"></i> Upload Logo</button>
+                        </div>
+                        
+                        <div class="control-group glass">
+                            <h3>2. Material Properties</h3>
+                            <label for="bg-color">Background Color</label>
+                            <input type="color" id="bg-color" value="#1a1a2e"> <!-- Default to a dark theme color -->
+                            <label for="base-color">Object Color</label>
+                            <input type="color" id="base-color" value="#cccccc">
+                            <label for="metallic-slider">Metallic</label>
+                            <input type="range" id="metallic-slider" min="0" max="1" step="0.01" value="0.5">
+                            <label for="roughness-slider">Roughness</label>
+                            <input type="range" id="roughness-slider" min="0" max="1" step="0.01" value="0.5">
+                        </div>
+
+                        <div class="control-group glass">
+                            <h3>3. Logo Transform</h3>
+                            <label for="logo-scale-slider">Logo Scale</label>
+                            <input type="range" id="logo-scale-slider" min="0.1" max="2" step="0.01" value="1">
+                            <label for="logo-offset-x-slider">Logo Offset X</label>
+                            <input type="range" id="logo-offset-x-slider" min="-1" max="1" step="0.01" value="0">
+                            <label for="logo-offset-y-slider">Logo Offset Y</label>
+                            <input type="range" id="logo-offset-y-slider" min="-1" max="1" step="0.01" value="0">
+                        </div>
+
+                        <div class="control-group glass">
+                          <h3>4. Export</h3>
+                          <button id="export-btn" class="control-item glass"><i class="fas fa-download"></i> Export Options</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <section class="how-to-guide glass" style="margin-top: 40px;">
+                    <h2>How to Create Your 3D Logo Mockup</h2>
+                    <div class="steps-container">
+                        <div class="step"><i class="fas fa-shapes"></i><h3>1. Choose Model</h3><p>Select a 3D object like a cube, cylinder, or plaque from the "Scene Setup" panel.</p></div>
+                        <div class="step"><i class="fas fa-image"></i><h3>2. Upload Logo</h3><p>Click "Upload Logo" and select a PNG or JPG file. A transparent PNG works best!</p></div>
+                        <div class="step"><i class="fas fa-sliders-h"></i><h3>3. Adjust & Customize</h3><p>Use the sliders to change the object's color, material, and the logo's size/position.</p></div>
+                        <div class="step"><i class="fas fa-file-export"></i><h3>4. Export Your File</h3><p>Click "Export Options" and choose your format: a PNG image, MP4 video, or a 3D model.</p></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Site Footer -->
+    <div id="footer">
+        <div class="container">
+            <footer class="glass">
+                <div class="footer-content">
+                     <div class="team-social">
+                        <a href="https://youtube.com/@auronuel?si=YTkcGZIeB_3QGJHg" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://vm.tiktok.com/ZMSgSY3Lu/" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.facebook.com/share/16GXGeZVyk/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://t.me/emmanuelsenya" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+                    </div>
+                    <div class="copyright">&copy; 2025 Auronuel. All rights reserved.</div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Hidden elements required for functionality -->
+    <input type="file" id="logo-upload-input" accept="image/*" />
+    <div class="modal" id="export-modal"><div class="modal-content glass"><i class="fas fa-times modal-close" id="export-modal-close"></i><h2>Export Options</h2><p style="font-size:14px; text-align:center; color:white; opacity:0.8;">Choose your desired format.</p><button id="export-png-btn" class="product-button glass">Download PNG Image</button><button id="export-video-btn" class="product-button glass">Download Video (360°)</button><button id="export-glb-btn" class="product-button glass">Download 3D Model (.glb)</button></div></div>
+
+    <!-- Original 3D Tool JS -->
+   <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- UI Elements ---
+    const viewerContainer = document.getElementById('viewer-container');
+    const statusText = document.getElementById('status-text');
+    const spinner = document.querySelector('#status .spinner');
+    
+    // Controls
+    const modelSelect = document.getElementById('model-select');
+    const logoUploadBtn = document.getElementById('logo-upload-btn');
+    const logoUploadInput = document.getElementById('logo-upload-input');
+    const bgColorPicker = document.getElementById('bg-color');
+    const baseColorPicker = document.getElementById('base-color');
+    const metallicSlider = document.getElementById('metallic-slider');
+    const roughnessSlider = document.getElementById('roughness-slider');
+    const logoScaleSlider = document.getElementById('logo-scale-slider');
+    const logoOffsetXSlider = document.getElementById('logo-offset-x-slider');
+    const logoOffsetYSlider = document.getElementById('logo-offset-y-slider');
+    
+    // Export
+    const exportBtn = document.getElementById('export-btn');
+    const exportModal = document.getElementById('export-modal');
+    const exportModalClose = document.getElementById('export-modal-close');
+    const exportPngBtn = document.getElementById('export-png-btn');
+    const exportVideoBtn = document.getElementById('export-video-btn');
+    const exportGlbBtn = document.getElementById('export-glb-btn');
+
+    // --- State & 3D Variables ---
+    let scene, camera, renderer, controls, mainObject, material, defaultTexture;
+    let ffmpeg = null;
+    let ffmpegLoaded = false;
+    let animationFrameId = null;
+
+    // --- Utility Functions ---
+    const setStatus = (text, showSpinner = false) => {
+        statusText.textContent = text;
+        spinner.classList.toggle('active', showSpinner);
+    };
+
+    const downloadBlob = (blob, filename) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    // --- FFmpeg ---
+    const loadFFmpeg = async () => {
+        setStatus('Loading video engine...', true);
+        try {
+            // Check if FFmpeg constructor is available on the window
+            if (window.FFmpeg && typeof window.FFmpeg.createFFmpeg === 'function') {
+                ffmpeg = window.FFmpeg.createFFmpeg({ log: true });
+                await ffmpeg.load();
+                ffmpegLoaded = true;
+                setStatus('Ready. Select an object and upload your logo.');
+            } else {
+                 throw new Error('FFmpeg library not loaded or defined.');
+            }
+        } catch (err) {
+            console.error('FFmpeg load failed:', err);
+            ffmpegLoaded = false;
+            setStatus('Video engine failed. MP4 export disabled, WebM available.');
+        } finally {
+            spinner.classList.remove('active');
+        }
+    };
+    
+    // --- 3D Initialization ---
+    function init3D() {
+        // Scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(bgColorPicker.value);
+
+        // Camera
+        camera = new THREE.PerspectiveCamera(50, viewerContainer.clientWidth / viewerContainer.clientHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        // Renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+        renderer.setSize(viewerContainer.clientWidth, viewerContainer.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        viewerContainer.appendChild(renderer.domElement);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+        
+        // Controls
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 2;
+        controls.maxDistance = 20;
+
+        // Material
+        defaultTexture = new THREE.TextureLoader().load('data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24"><path fill="gray" d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12l3.75 3.75l3.12-3.12c.39-.39.39-1.02 0-1.41M3 17.25V21h3.75l11.06-11.06l-3.75-3.75z"/></svg>'));
+        material = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(baseColorPicker.value),
+            metalness: parseFloat(metallicSlider.value),
+            roughness: parseFloat(roughnessSlider.value),
+            map: defaultTexture,
+        });
+
+        // Initial Object
+        createObject();
+        animate();
+    }
+
+    function createObject() {
+        if (mainObject) scene.remove(mainObject);
+
+        let geometry;
+        const modelType = modelSelect.value;
+
+        switch(modelType) {
+            case 'cylinder':
+                geometry = new THREE.CylinderGeometry(1, 1, 2, 64);
+                break;
+            case 'sphere':
+                geometry = new THREE.SphereGeometry(1.2, 64, 64);
+                break;
+            case 'plaque':
+                geometry = new THREE.BoxGeometry(2.5, 2.5, 0.2);
+                break;
+            case 'cube':
+            default:
+                geometry = new THREE.BoxGeometry(2, 2, 2);
+                break;
+        }
+
+        mainObject = new THREE.Mesh(geometry, material);
+        scene.add(mainObject);
+    }
+    
+    function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    
+    function handleResize() {
+        if (!renderer) return;
+        const width = viewerContainer.clientWidth;
+        const height = viewerContainer.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    }
+
+    function handleLogoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            new THREE.TextureLoader().load(e.target.result, (texture) => {
+                texture.encoding = THREE.sRGBEncoding;
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                material.map = texture;
+                material.needsUpdate = true;
+                setStatus('Logo applied successfully!');
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateMaterial() {
+        material.color.set(baseColorPicker.value);
+        material.metalness = parseFloat(metallicSlider.value);
+        material.roughness = parseFloat(roughnessSlider.value);
+    }
+    
+    function updateLogoTransform() {
+        if (material.map) {
+            const scale = parseFloat(logoScaleSlider.value);
+            const offsetX = parseFloat(logoOffsetXSlider.value);
+            const offsetY = parseFloat(logoOffsetYSlider.value);
+            material.map.repeat.set(scale, scale);
+            material.map.offset.set( (1 - scale) / 2 + offsetX, (1 - scale) / 2 + offsetY );
+        }
+    }
+
+    async function exportPNG() {
+        setStatus('Generating PNG...', true);
+        renderer.render(scene, camera);
+        const dataURL = renderer.domElement.toDataURL('image/png');
+        const blob = await (await fetch(dataURL)).blob();
+        downloadBlob(blob, 'logo-mockup.png');
+        setStatus('PNG downloaded!');
+        exportModal.classList.remove('active');
+    }
+
+    // --- **FIXED & ROBUST** VIDEO EXPORT FUNCTION ---
+    async function exportVideo() {
+        if (!mainObject) return;
+        
+        setStatus('Recording 360° video...', true);
+        exportModal.classList.remove('active');
+        
+        cancelAnimationFrame(animationFrameId);
+        controls.enabled = false;
+
+        const stream = renderer.domElement.captureStream(30);
+        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        const chunks = [];
+
+        recorder.ondataavailable = e => chunks.push(e.data);
+
+        recorder.onstop = async () => {
+            controls.enabled = true;
+            animate();
+
+            const webmBlob = new Blob(chunks, { type: 'video/webm' });
+
+            if (ffmpegLoaded) {
+                setStatus('Converting video to MP4...', true);
+                try {
+                    ffmpeg.FS('writeFile', 'input.webm', await FFmpeg.fetchFile(webmBlob));
+                    await ffmpeg.run('-i', 'input.webm', '-c:v', 'libx264', '-crf', '18', '-preset', 'fast', 'output.mp4');
+                    const data = ffmpeg.FS('readFile', 'output.mp4');
+                    const mp4Blob = new Blob([data.buffer], { type: 'video/mp4' });
+                    downloadBlob(mp4Blob, 'logo-animation.mp4');
+                    setStatus('MP4 video downloaded!');
+                } catch (err) {
+                    console.error("FFmpeg conversion failed, falling back to WebM.", err);
+                    setStatus('MP4 conversion failed! Downloading WebM instead.');
+                    downloadBlob(webmBlob, 'logo-animation.webm');
+                }
+            } else {
+                // If FFmpeg never loaded, download the WebM directly.
+                setStatus('Video engine not available. Downloading WebM video.');
+                downloadBlob(webmBlob, 'logo-animation.webm');
+            }
+        };
+
+        recorder.start();
+        
+        const originalRotationY = mainObject.rotation.y;
+        const startTime = Date.now();
+
+        const recordAnimation = () => {
+            const elapsedTime = Date.now() - startTime;
+            if (elapsedTime >= 5000) { // Record for 5 seconds
+                recorder.stop();
+                mainObject.rotation.y = originalRotationY;
+                return;
+            }
+            mainObject.rotation.y += 0.025;
+            renderer.render(scene, camera);
+            requestAnimationFrame(recordAnimation);
+        };
+        
+        recordAnimation();
+    }
+
+    function exportGLB() {
+        setStatus('Exporting 3D model...', true);
+        const exporter = new THREE.GLTFExporter();
+        exporter.parse(scene, (gltf) => {
+            const blob = new Blob([gltf], { type: 'model/gltf-binary' });
+            downloadBlob(blob, 'logo-model.glb');
+            setStatus('GLB model downloaded!');
+            exportModal.classList.remove('active');
+        }, { binary: true });
+    }
+
+    // --- Event Listeners ---
+    window.addEventListener('resize', handleResize);
+    modelSelect.addEventListener('change', createObject);
+    logoUploadBtn.addEventListener('click', () => logoUploadInput.click());
+    logoUploadInput.addEventListener('change', handleLogoUpload);
+    
+    bgColorPicker.addEventListener('input', () => scene.background.set(bgColorPicker.value));
+    baseColorPicker.addEventListener('input', updateMaterial);
+    metallicSlider.addEventListener('input', updateMaterial);
+    roughnessSlider.addEventListener('input', updateMaterial);
+
+    logoScaleSlider.addEventListener('input', updateLogoTransform);
+    logoOffsetXSlider.addEventListener('input', updateLogoTransform);
+    logoOffsetYSlider.addEventListener('input', updateLogoTransform);
+    
+    exportBtn.addEventListener('click', () => exportModal.classList.add('active'));
+    exportModalClose.addEventListener('click', () => exportModal.classList.remove('active'));
+    exportPngBtn.addEventListener('click', exportPNG);
+    exportVideoBtn.addEventListener('click', exportVideo);
+    exportGlbBtn.addEventListener('click', exportGLB);
+
+    // --- Initial Calls ---
+    init3D();
+    loadFFmpeg(); // Proactively load the video engine on page start.
+});
+</script>
+</body>
+</html>

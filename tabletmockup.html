@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auronuel - Tablet Mockup</title>
+
+    <!-- Scripts for Mockup Functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js" defer></script>
+
+    <!-- Links to Main Site's CSS and FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="templatemo-glossy-touch.css">
+
+    <!-- CSS specifically for this Mockup Tool -->
+    <style>
+        /* ======================================================= */
+        /*          STYLES FOR THE TOOL HEADER (BACK BUTTON)       */
+        /* ======================================================= */
+        .tool-header { padding: 20px 0; position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        .tool-header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .back-button { display: flex; align-items: center; gap: 8px; color: white; text-decoration: none; font-size: 1rem; font-weight: 500; padding: 10px 15px; border-radius: 10px; transition: background 0.3s ease; }
+        .back-button:hover { background: rgba(255, 255, 255, 0.15); }
+        .back-button i { font-size: 1.1rem; }
+        .header-spacer { width: 90px; }
+        .tool-header .logo { cursor: default; }
+
+        /* Styles we MUST keep for the tablet models to look correct */
+        .screen { font-family: sans-serif; font-size: 14px; color: #999; cursor: pointer; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .screen img, .screen video { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #000; }
+        input[type="file"] { display: none; }
+        canvas { display: none; }
+        #tablet-black-matte .tablet, #tablet-silver-shiny .tablet { width: 300px; height: 420px; border-radius: 32px; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4); position: relative; padding: 1px; }
+        #tablet-black-matte .tablet { background: linear-gradient(145deg, #1a1a1a, #2c2c2c); }
+        #tablet-silver-shiny .tablet { background: linear-gradient(145deg, #e0e0e0, #f5f5f5); }
+        #tablet-black-matte .screen, #tablet-silver-shiny .screen { position: absolute; top: 24px; left: 12px; right: 12px; bottom: 56px; background: #ffffff; border-radius: 20px; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.3), inset -1px -1px 2px rgba(255,255,255,0.2); }
+        #tablet-black-matte .camera-dot, #tablet-silver-shiny .camera-dot { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; border-radius: 50%; z-index: 2; }
+        #tablet-black-matte .camera-dot { background: #ccc; }
+        #tablet-silver-shiny .camera-dot { background: #333; }
+        #tablet-black-matte .switch-button, #tablet-silver-shiny .switch-button { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 28px; height: 28px; background: radial-gradient(circle at 30% 30%, #dcdcdc, #bfbfbf); border-radius: 50%; border: 2px solid #111; box-shadow: inset -1px -1px 2px rgba(255, 255, 255, 0.6), inset 1px 1px 3px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.3); }
+        #tablet-front-facing .tablet { width: 300px; height: 400px; background: #222; padding: 12px; box-sizing: border-box; border-radius: 32px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); position: relative; }
+        #tablet-front-facing .screen { position: absolute; top: 12px; left: 12px; right: 12px; bottom: 12px; background: #fefefe; border-radius: 20px; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.3), inset -1px -1px 2px rgba(255,255,255,0.2); }
+        #tablet-front-facing .camera-dot { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; background: #333; border-radius: 50%; z-index: 2;}
+        #two-tablets-perspective { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; transform: scale(0.9); perspective: 2000px; }
+        #two-tablets-perspective .tablet-layout:nth-child(1) { transform: rotateY(-20deg) rotateX(5deg) translateX(-60px); z-index: 1; }
+        #two-tablets-perspective .tablet-layout:nth-child(2) { transform: rotateY(15deg) rotateX(2deg) translateX(60px); z-index: 2; }
+        #two-tablets-perspective .tablet { box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+
+        /* Styles to theme the mockup tool like the main site */
+        .mockup-content { padding: 40px 0; }
+        .mockup-title { color: white; font-size: 2.8rem; text-align: center; margin-bottom: 40px; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; margin: 0 auto 20px auto; max-width: 600px; }
+        .control-group { display: flex; flex-direction: column; gap: 8px; color: white; }
+        .control-group label { font-weight: 500; padding-left: 5px; }
+        .control-item { display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; padding: 12px; text-decoration: none; color: white; font-weight: 600; }
+        select, input[type="color"] { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; color: white; font-size: 16px; padding: 12px; font-family: inherit; }
+        select option { color: black; background: white; }
+        input[type="color"] { height: 48px; padding: 5px; }
+        #status { margin-bottom: 20px; color: white; text-align: center; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 24px; width: 100%; }
+        .spinner { display: none; width: 16px; height: 16px; border: 3px solid white; border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner.active { display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .mockup-container { display: flex; justify-content: center; align-items: center; width: 100%; max-width: 600px; min-height: 500px; padding: 20px; background-size: cover; background-position: center; perspective: 1200px; overflow: visible; margin: 0 auto; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1003; backdrop-filter: blur(10px); }
+        .modal.active { display: flex; }
+        .modal-content { max-width: 400px; width: 90%; }
+        .modal-content button { display: block; width: 100%; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <!-- Main Site Animated Background -->
+    <div class="bg-shapes">
+        <div class="shape">Auronuel</div><div class="shape"></div><div class="shape">Auronuel</div>
+        <div class="shape"></div><div class="shape">Auronuel</div><div class="shape"></div>
+    </div>
+
+    <!-- NEW SIMPLE HEADER WITH BACK BUTTON -->
+    <header class="tool-header">
+        <div class="container tool-header-container">
+            <a href="javascript:history.back()" class="back-button"><i class="fas fa-arrow-left"></i><span>Back</span></a>
+            <div class="logo"><div class="logo-icon"><img src="images/auro.png" alt=""></div><span>Auronuel</span></div>
+            <div class="header-spacer"></div>
+        </div>
+    </header>
+
+    <!-- Page Content for Tablet Mockup Tool -->
+    <div id="tablet-mockup-page" class="page active">
+        <div class="container">
+            <div class="mockup-content">
+                <h1 class="mockup-title">Tablet Mockup Generator</h1>
+
+                <!-- Controls Section -->
+                <section class="glass" style="padding: 30px; margin-bottom: 40px;">
+                    <div id="status">
+                        <span id="status-text">Select a layout and click a screen to upload media.</span>
+                        <span class="spinner"></span>
+                    </div>
+                    <div class="controls-grid">
+                        <div class="control-group"><label for="tablet-select">Tablet / Layout Model</label><select id="tablet-select"><option value="tablet-black-matte">Tablet Black (Matte)</option><option value="tablet-silver-shiny">Tablet Silver (Shiny)</option><option value="tablet-front-facing">Tablet Front-Facing (Black)</option><option value="two-tablets-perspective">Two Tablets (Perspective)</option></select></div>
+                        <div class="control-group"><label for="download-btn">Actions</label><a href="#" id="download-btn" class="control-item glass"><i class="fas fa-download"></i><span>Download</span></a></div>
+                        <div class="control-group"><label for="background-type-select">Background Type</label><select id="background-type-select"><option value="color">Solid Color BG</option><option value="image">Upload Image BG</option><option value="gradient_sunset">Sunset Gradient</option><option value="gradient_ocean">Ocean Gradient</option></select></div>
+                        <div class="control-group"><label for="background-color">Background Color</label><input type="color" id="background-color" value="#ffffff" title="Background Color" /></div>
+                    </div>
+                </section>
+                
+                <!-- Tablet Preview Section -->
+                <section class="glass">
+                    <div class="mockup-container" id="mockup-container">
+                        <div id="tablet-black-matte" class="tablet-layout"><div class="tablet"><div class="camera-dot"></div><div class="screen">Click to upload</div><div class="switch-button"></div></div></div>
+                        <div id="tablet-silver-shiny" class="tablet-layout" style="display: none;"><div class="tablet"><div class="camera-dot"></div><div class="screen">Click to upload</div><div class="switch-button"></div></div></div>
+                        <div id="tablet-front-facing" class="tablet-layout" style="display: none;"><div class="tablet"><div class="camera-dot"></div><div class="screen">Click to upload</div></div></div>
+<div id="two-tablets-perspective" class="tablet-layout" style="display: none;">
+            <div class="tablet-layout" id="tablet-silver-shiny"><div class="tablet"><div class="camera-dot"></div><div class="screen">Click to upload</div><div class="switch-button"></div></div></div>
+            <div class="tablet-layout" id="tablet-black-matte"><div class="tablet"><div class="camera-dot"></div><div class="screen">Click to upload</div><div class="switch-button"></div></div></div>
+        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Site Footer -->
+    <div id="footer">
+        <div class="container">
+            <footer class="glass">
+                <div class="footer-content">
+                    <div class="team-social">
+                        <a href="https://youtube.com/@auronuel?si=YTkcGZIeB_3QGJHg" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://vm.tiktok.com/ZMSgSY3Lu/" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.facebook.com/share/16GXGeZVyk/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://t.me/emmanuelsenya" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+                    </div>
+                    <div class="copyright">&copy; 2025 Auronuel. All rights reserved.</div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Hidden elements required for functionality -->
+    <input type="file" id="media-upload" accept="image/*,video/*" /><input type="file" id="background-upload" accept="image/*" /><canvas id="render-canvas"></canvas>
+    <div class="modal" id="download-modal"><div class="modal-content glass"><i class="fas fa-times modal-close" id="download-modal-close" style="color:white; align-self:flex-end;"></i><h2 style="color:white;">Download Options</h2><button id="download-medium-btn" class="product-button glass">Medium PNG (1x)</button><button id="download-high-btn" class="product-button glass">High Quality PNG (2x)</button><button id="download-video-mockup-btn" class="product-button glass" style="display: none;">Video Mockup (MP4)</button><button id="download-video-png-btn" class="product-button glass" style="display: none;">Video Snapshot (PNG)</button><p id="video-note" style="display: none; font-size: 12px; color: white;">Note: Video mockups have sound. Use Snapshot for a static image.</p></div></div>
+
+    <!-- Original Mockup Tool JS -->
+    <script defer>
+const tabletSelect = document.getElementById('tablet-select');
+const tabletLayouts = {
+    'tablet-black-matte': document.getElementById('tablet-black-matte'),
+    'tablet-silver-shiny': document.getElementById('tablet-silver-shiny'),
+    'tablet-front-facing': document.getElementById('tablet-front-facing'),
+    'two-tablets-perspective': document.getElementById('two-tablets-perspective'),
+};
+const allScreens = document.querySelectorAll('.screen');
+const mediaUpload = document.getElementById('media-upload');
+const downloadBtn = document.getElementById('download-btn');
+const statusTextEl = document.getElementById('status-text');
+const spinner = document.querySelector('#status .spinner');
+const downloadModal = document.getElementById('download-modal');
+const downloadModalClose = document.getElementById('download-modal-close');
+const downloadMediumBtn = document.getElementById('download-medium-btn');
+const downloadHighBtn = document.getElementById('download-high-btn');
+const downloadVideoMockupBtn = document.getElementById('download-video-mockup-btn');
+const downloadVideoPngBtn = document.getElementById('download-video-png-btn');
+const videoNote = document.getElementById('video-note');
+const backgroundColorPicker = document.getElementById('background-color');
+const backgroundTypeSelect = document.getElementById('background-type-select');
+const backgroundUpload = document.getElementById('background-upload');
+const mockupContainer = document.getElementById('mockup-container');
+const renderCanvas = document.getElementById('render-canvas');
+let currentFile = null; let recordedChunks = []; let isVideoProcessing = false; let ffmpeg = null; let ffmpegLoaded = false; let backgroundType = 'color'; let backgroundImage = null; let lastClickedScreen = null;
+
+const complexLayouts = ['two-tablets-perspective'];
+
+// --- All JS functions adapted for the new, fixed tablet designs ---
+async function loadFFmpeg() { if (ffmpegLoaded) return; statusTextEl.textContent = 'Loading video engine...'; spinner.classList.add('active'); try { if (typeof FFmpeg !== 'undefined' && FFmpeg.createFFmpeg) { ffmpeg = FFmpeg.createFFmpeg({ log: true }); await ffmpeg.load(); ffmpegLoaded = true; statusTextEl.textContent = 'Video engine loaded!'; } else { throw new Error('FFmpeg library not loaded.'); } } catch (err) { console.error('FFmpeg load failed:', err); statusTextEl.textContent = 'Video engine failed. Mockups will be WebM.'; } finally { spinner.classList.remove('active'); setTimeout(() => updateStatusText(), 1500); } }
+function updateStatusText() { const selected = tabletSelect.value; const tabletName = tabletSelect.options[tabletSelect.selectedIndex].text; let newStatusText = `Selected ${tabletName}. Click a screen to upload media.`; if (complexLayouts.includes(selected)) { newStatusText = `Selected ${tabletName}. Only PNG download is available.`; } statusTextEl.textContent = newStatusText; }
+function updateDisplay() { const selected = tabletSelect.value; Object.keys(tabletLayouts).forEach(key => { const layout = tabletLayouts[key]; if (layout) { layout.style.display = key === selected ? 'flex' : 'none'; } }); updateStatusText(); }
+function openModal(modal) { const isComplex = complexLayouts.includes(tabletSelect.value); const hasVideo = currentFile && currentFile.type.startsWith('video/'); downloadVideoMockupBtn.style.display = hasVideo && !isComplex ? 'block' : 'none'; downloadVideoPngBtn.style.display = hasVideo && !isComplex ? 'block' : 'none'; videoNote.style.display = hasVideo && !isComplex ? 'block' : 'none'; downloadMediumBtn.style.display = !hasVideo || isComplex ? 'block' : 'none'; downloadHighBtn.style.display = !hasVideo || isComplex ? 'block' : 'none'; modal.classList.add('active'); }
+function closeModal(modal) { modal.classList.remove('active'); }
+function redrawLivePreview() { const tempCanvas = document.createElement('canvas'); const containerRect = mockupContainer.getBoundingClientRect(); tempCanvas.width = containerRect.width; tempCanvas.height = containerRect.height; const tempCtx = tempCanvas.getContext('2d'); drawBackground(tempCtx, tempCanvas.width, tempCanvas.height); mockupContainer.style.backgroundImage = `url(${tempCanvas.toDataURL()})`; mockupContainer.style.backgroundColor = 'transparent'; }
+function handleMediaUpload(e) { const file = e.target.files[0]; if (!file || !lastClickedScreen) return; currentFile = file; const isVideo = file.type.startsWith('video/'); const isComplexLayout = complexLayouts.includes(tabletSelect.value); if (isVideo && isComplexLayout) { alert("Video uploads are not supported for this layout. Please choose an image."); mediaUpload.value = ''; return; } const reader = new FileReader(); reader.onload = async (event) => { const url = event.target.result; lastClickedScreen.innerHTML = ''; if (file.type.startsWith('image/')) { const img = document.createElement('img'); img.src = url; lastClickedScreen.appendChild(img); statusTextEl.textContent = 'Media uploaded! Click Download.'; } else if (isVideo) { statusTextEl.textContent = 'Processing video...'; spinner.classList.add('active'); downloadBtn.classList.add('disabled'); isVideoProcessing = true; const videoElement = document.createElement('video'); videoElement.src = url; videoElement.muted = false; lastClickedScreen.appendChild(videoElement); prepareVideoRecording(videoElement); } }; reader.readAsDataURL(file); mediaUpload.value = ''; }
+function prepareVideoRecording(videoElement) { videoElement.onloadedmetadata = () => { renderCanvas.width = 1000; renderCanvas.height = 1000; const ctx = renderCanvas.getContext('2d'); let finalStream; try { const audioContext = new(window.AudioContext || window.webkitAudioContext)(); const source = audioContext.createMediaElementSource(videoElement); const dest = audioContext.createMediaStreamDestination(); source.connect(dest); source.connect(audioContext.destination); const canvasStream = renderCanvas.captureStream(30); finalStream = new MediaStream([...canvasStream.getVideoTracks(), ...dest.stream.getAudioTracks()]); } catch (err) { console.warn("Could not process audio track.", err); finalStream = renderCanvas.captureStream(30); } recordedChunks = []; const mediaRecorder = new MediaRecorder(finalStream, { mimeType: 'video/webm;codecs=vp9,opus' }); mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); }; mediaRecorder.onstop = () => { isVideoProcessing = false; downloadBtn.classList.remove('disabled'); statusTextEl.textContent = 'Video ready! Click Download.'; spinner.classList.remove('active'); }; videoElement.onended = () => { if (mediaRecorder?.state === 'recording') mediaRecorder.stop(); }; function renderLoop() { if (!isVideoProcessing || videoElement.paused || videoElement.ended) return; drawCompleteFrameForVideo(ctx, 2, videoElement); requestAnimationFrame(renderLoop); } drawCompleteFrameForVideo(ctx, 2, videoElement); mediaRecorder.start(); videoElement.currentTime = 0; videoElement.play().catch(console.error); requestAnimationFrame(renderLoop); }; videoElement.onerror = () => { statusTextEl.textContent = 'Error loading video.'; spinner.classList.remove('active'); isVideoProcessing = false; downloadBtn.classList.remove('disabled'); } }
+async function downloadMockupWithHtml2Canvas(scale = 2) { statusTextEl.textContent = 'Generating high-quality PNG...'; spinner.classList.add('active'); redrawLivePreview(); try { await new Promise(resolve => setTimeout(resolve, 100)); const canvas = await html2canvas(mockupContainer, { scale, backgroundColor: null, useCORS: true, allowTaint: true }); downloadBlob(canvas.toDataURL('image/png', 1.0), 'png'); statusTextEl.textContent = 'Mockup downloaded!'; } catch (err) { console.error('html2canvas failed:', err); statusTextEl.textContent = 'Failed to generate mockup.'; } finally { spinner.classList.remove('active'); closeModal(downloadModal); } }
+async function downloadVideoMockup() { if (recordedChunks.length === 0) { statusTextEl.textContent = 'Video not ready.'; return; } statusTextEl.textContent = 'Finalizing video...'; spinner.classList.add('active'); closeModal(downloadModal); await loadFFmpeg(); const webmBlob = new Blob(recordedChunks, { type: 'video/webm' }); if (ffmpegLoaded) { try { ffmpeg.FS('writeFile', 'input.webm', await FFmpeg.fetchFile(webmBlob)); await ffmpeg.run('-i', 'input.webm', '-c:v', 'libx264', '-crf', 18, '-preset', 'fast', '-c:a', 'aac', '-b:a', '192k', 'output.mp4'); const data = ffmpeg.FS('readFile', 'output.mp4'); downloadBlob(new Blob([data.buffer], { type: 'video/mp4' }), 'mp4'); statusTextEl.textContent = 'Video mockup (MP4) downloaded!'; } catch(err) { console.error("FFmpeg failed, falling back to WebM", err); statusTextEl.textContent = 'MP4 conversion failed! Downloading WebM.'; downloadBlob(webmBlob, 'webm'); } } else { statusTextEl.textContent = 'Video engine failed. Downloading WebM.'; downloadBlob(webmBlob, 'webm'); } spinner.classList.remove('active'); }
+function downloadBlob(blobOrUrl, extension) { const a = document.createElement('a'); a.href = (typeof blobOrUrl === 'string') ? blobOrUrl : URL.createObjectURL(blobOrUrl); a.download = `${tabletSelect.value}-mockup.${extension}`; a.click(); if (typeof blobOrUrl !== 'string') { URL.revokeObjectURL(a.href); } }
+function drawBackground(ctx, width, height) { ctx.clearRect(0, 0, width, height); switch (backgroundType) { case 'image': if (backgroundImage) ctx.drawImage(backgroundImage, 0, 0, width, height); else { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, width, height); } break; case 'gradient_sunset': const sunsetGrad = ctx.createLinearGradient(0, 0, width, height); sunsetGrad.addColorStop(0, '#ff9a9e'); sunsetGrad.addColorStop(1, '#fad0c4'); ctx.fillStyle = sunsetGrad; ctx.fillRect(0, 0, width, height); break; case 'gradient_ocean': const oceanGrad = ctx.createLinearGradient(0, 0, width, height); oceanGrad.addColorStop(0, '#2193b0'); oceanGrad.addColorStop(1, '#6dd5ed'); ctx.fillStyle = oceanGrad; ctx.fillRect(0, 0, width, height); break; case 'color': default: ctx.fillStyle = backgroundColorPicker.value; ctx.fillRect(0, 0, width, height); break; } }
+
+function drawCompleteFrameForVideo(ctx, scale, mediaElement) {
+    const d = tabletSelect.value;
+    drawBackground(ctx, ctx.canvas.width, ctx.canvas.height);
+    const models = { 
+        'tablet-black-matte': {w:300,h:420,r:32,c:['#1a1a1a','#2c2c2c'], p:1, sx:12,sy:24,sr:20, bottom:56}, 
+        'tablet-silver-shiny': {w:300,h:420,r:32,c:['#e0e0e0','#f5f5f5'], p:1, sx:12,sy:24,sr:20, bottom:56}, 
+        'tablet-front-facing': {w:300,h:400,r:32,c:'#222', p:12, sx:0,sy:0,sr:20, bottom:0}
+    };
+    if (!models[d]) return;
+
+    const model = models[d];
+    const devW = model.w * scale, devH = model.h * scale, devR = model.r * scale;
+    const offX = (ctx.canvas.width - devW) / 2, offY = (ctx.canvas.height - devH) / 2;
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 30 * scale; ctx.shadowOffsetY = 20 * scale;
+    if (Array.isArray(model.c)) { const grad = ctx.createLinearGradient(offX, offY, offX + devW, offY + devH); grad.addColorStop(0, model.c[0]); grad.addColorStop(1, model.c[1]); ctx.fillStyle = grad; } 
+    else { ctx.fillStyle = model.c; }
+    ctx.beginPath(); ctx.roundRect(offX, offY, devW, devH, devR); ctx.fill();
+    ctx.restore();
+
+    const padding = model.p * scale;
+    const screenX = offX + (model.sx || padding);
+    const screenY = offY + (model.sy || padding);
+    const screenW = devW - 2 * (model.sx || padding);
+    const screenH = devH - (model.sy || padding) - (model.bottom || padding);
+    const screenR = model.sr * scale;
+    
+    // Draw Bevel for realism
+    ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 1 * scale;
+    ctx.beginPath(); ctx.roundRect(screenX, screenY, screenW, screenH, screenR); ctx.stroke();
+    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+    ctx.beginPath(); ctx.roundRect(screenX + 1*scale, screenY + 1*scale, screenW - 2*scale, screenH - 2*scale, screenR); ctx.stroke();
+
+    ctx.save();
+    ctx.beginPath(); ctx.roundRect(screenX, screenY, screenW, screenH, screenR); ctx.clip();
+    const mediaWidth = mediaElement.videoWidth, mediaHeight = mediaElement.videoHeight;
+    const mediaRatio = mediaWidth / mediaHeight, screenRatio = screenW / screenH;
+    let drawW = screenW, drawH = screenH, drawX = screenX, drawY = screenY;
+    if (mediaRatio > screenRatio) { drawH = screenW / mediaRatio; drawY += (screenH - drawH) / 2; } 
+    else { drawW = screenH * mediaRatio; drawX += (screenW - drawW) / 2; }
+    ctx.drawImage(mediaElement, drawX, drawY, drawW, drawH);
+    ctx.restore();
+
+    // Draw UI Overlays for Video
+    switch(d) {
+        case 'tablet-black-matte':
+        case 'tablet-silver-shiny':
+            ctx.fillStyle = d === 'tablet-black-matte' ? '#ccc' : '#333';
+            ctx.beginPath(); ctx.arc(offX + devW / 2, offY + 10 * scale, 5 * scale, 0, 2*Math.PI); ctx.fill();
+            const gradBtn = ctx.createRadialGradient(offX+devW/2, offY+devH-(10+14)*scale, 1*scale, offX+devW/2, offY+devH-(10+14)*scale, 14*scale);
+            gradBtn.addColorStop(0, '#dcdcdc'); gradBtn.addColorStop(1, '#bfbfbf');
+            ctx.fillStyle = gradBtn; ctx.strokeStyle = '#111'; ctx.lineWidth = 2 * scale;
+            ctx.beginPath(); ctx.arc(offX + devW / 2, offY + devH - (10+14) * scale, 14 * scale, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
+            break;
+        case 'tablet-front-facing':
+            ctx.fillStyle = '#333';
+            ctx.beginPath(); ctx.arc(offX + devW / 2, offY + 22 * scale, 5 * scale, 0, 2*Math.PI); ctx.fill();
+            break;
+    }
+}
+tabletSelect.addEventListener('change', updateDisplay);
+allScreens.forEach(s => s.addEventListener('click', (e) => { if(e.currentTarget.style.cursor === 'default' || e.currentTarget.parentElement.style.cursor === 'default') return; lastClickedScreen = e.currentTarget; mediaUpload.click(); }));
+mediaUpload.addEventListener('change', handleMediaUpload);
+backgroundTypeSelect.addEventListener('change', (e) => { backgroundType = e.target.value; const colorPickerGroup = backgroundColorPicker.parentElement; colorPickerGroup.style.display = (backgroundType === 'color') ? 'flex' : 'none'; if (backgroundType === 'image') { backgroundUpload.click(); } else { backgroundImage = null; redrawLivePreview(); } });
+backgroundColorPicker.addEventListener('input', redrawLivePreview);
+backgroundUpload.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { const img = new Image(); img.onload = () => { backgroundImage = img; redrawLivePreview(); }; img.src = event.target.result; }; reader.readAsDataURL(file); });
+downloadBtn.addEventListener('click', () => { if (isVideoProcessing) return; openModal(downloadModal); });
+downloadModalClose.addEventListener('click', () => closeModal(downloadModal));
+downloadMediumBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(1));
+downloadHighBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(2));
+downloadVideoPngBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(2));
+downloadVideoMockupBtn.addEventListener('click', () => downloadVideoMockup());
+updateDisplay();
+redrawLivePreview();
+document.getElementById('background-color').parentElement.style.display = (backgroundTypeSelect.value === 'color') ? 'flex' : 'none';
+const hamburger = document.getElementById('hamburger-menu');
+const overlay = document.querySelector('.sidebar-overlay');
+hamburger.addEventListener('click', () => { document.body.classList.toggle('sidebar-open'); });
+overlay.addEventListener('click', () => { document.body.classList.remove('sidebar-open'); });
+</script>
+</body>
+</html>

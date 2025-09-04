@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auronuel - Laptop Mockup</title>
+
+    <!-- Scripts for Mockup Functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js" defer></script>
+
+    <!-- Links to Main Site's CSS and FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="templatemo-glossy-touch.css">
+
+    <!-- CSS specifically for this Mockup Tool -->
+    <style>
+        /* ======================================================= */
+        /*          STYLES FOR THE TOOL HEADER (BACK BUTTON)       */
+        /* ======================================================= */
+        .tool-header { padding: 20px 0; position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        .tool-header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .back-button { display: flex; align-items: center; gap: 8px; color: white; text-decoration: none; font-size: 1rem; font-weight: 500; padding: 10px 15px; border-radius: 10px; transition: background 0.3s ease; }
+        .back-button:hover { background: rgba(255, 255, 255, 0.15); }
+        .back-button i { font-size: 1.1rem; }
+        .header-spacer { width: 90px; }
+        .tool-header .logo { cursor: default; }
+
+        /* Styles we MUST keep for the laptop models to look correct */
+        .screen { cursor: pointer; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fff; font-family: sans-serif; font-size: 18px; color: #999; }
+        .screen img, .screen video { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #000; }
+        input[type="file"] { display: none; }
+        canvas { display: none; }
+        .laptop-layout { width: 100%; display: flex; justify-content: center; align-items: center; }
+        .laptop { position: relative; width: 850px; filter: drop-shadow(0px 15px 25px rgba(0, 0, 0, 0.2)); transform-style: preserve-3d; }
+        .laptop-modern-black, .laptop-modern-blue { perspective: none; }
+        .laptop-modern-black .screen-frame, .laptop-modern-blue .screen-frame { position: relative; background-color: #0c0c0c; padding: 15px; border-radius: 12px 12px 0 0; box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4); }
+        .laptop-modern-black .webcam, .laptop-modern-blue .webcam { position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background-color: #2c2c2c; border-radius: 50%; box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.5); }
+        .laptop-modern-black .screen, .laptop-modern-blue .screen { aspect-ratio: 16 / 10; border-radius: 4px; }
+        .laptop-modern-black .base, .laptop-modern-blue .base { position: relative; width: 105%; left: -2.5%; height: 16px; border-radius: 0 0 12px 12px; transform: rotateX(-20deg); transform-origin: top center; z-index: 10; }
+        .laptop-modern-black .notch, .laptop-modern-blue .notch { position: absolute; top: 0px; left: 50%; transform: translateX(-50%); width: 18%; height: 6px; border-radius: 0 0 8px 8px; box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.3); }
+        .laptop-modern-black .base { background: linear-gradient(to bottom, #8a8d91, #6a6d71); }
+        .laptop-modern-black .notch { background: linear-gradient(to bottom, #2a2a2a, #3f3f3f); }
+        .laptop-modern-blue .base { background: linear-gradient(to bottom, #87ceeb, #4682b4); }
+        .laptop-modern-blue .notch { background: linear-gradient(to bottom, #2a2a2a, #3f3f3f); }
+        .laptop-perspective-silver { perspective: 1500px; }
+        .laptop-perspective-silver .screen-frame { position: relative; background-color: #0c0c0c; padding: 12px; border-radius: 12px; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1); z-index: 2; }
+        .laptop-perspective-silver .webcam { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background-color: #2c2c2c; border-radius: 50%; }
+        .laptop-perspective-silver .screen { aspect-ratio: 16 / 10; border-radius: 4px; }
+        .laptop-perspective-silver .base { position: relative; width: 100%; height: 280px; margin-top: -12px; border-radius: 12px; transform: rotateX(70deg); transform-origin: top center; background: linear-gradient(to bottom, #f0f0f0, #d8d8d8); box-shadow: inset 0px -5px 15px rgba(0, 0, 0, 0.1); }
+        .laptop-perspective-silver .trackpad { position: absolute; width: 35%; height: 38%; background-color: #e0e0e0; border: 1px solid #c7c7c7; border-radius: 8px; bottom: 8%; left: 50%; transform: translateX(-50%); box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        .laptop-perspective-silver .keyboard { position: absolute; width: 90%; height: 45%; top: 6%; left: 50%; transform: translateX(-50%); background-color: #d8d8d8; background-image: repeating-linear-gradient(to right, transparent 0, transparent 4%, #222 4%, #222 96%, transparent 96%, transparent 100%), repeating-linear-gradient(to bottom, transparent 0, transparent 8%, #222 8%, #222 92%, transparent 92%, transparent 100%); background-size: 8% 20%; border-radius: 4px; }
+        @media (max-width: 900px) { .laptop { transform: scale(0.95); } .laptop-container { min-height: 520px; } }
+        @media (max-width: 720px) { .laptop { transform: scale(0.85); } .laptop-container { min-height: 500px; } }
+        @media (max-width: 550px) { .laptop { transform: scale(0.75); } .laptop-container { min-height: 420px; } }
+        @media (max-width: 400px) { .laptop { transform: scale(0.6); } .laptop-container { min-height: 320px; } }
+
+        /* Styles to theme the mockup tool like the main site */
+        .mockup-content { padding: 40px 0; }
+        .mockup-title { color: white; font-size: 2.8rem; text-align: center; margin-bottom: 40px; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; margin: 0 auto 20px auto; max-width: 950px; }
+        .control-group { display: flex; flex-direction: column; gap: 8px; color: white; }
+        .control-group label { font-weight: 500; padding-left: 5px; }
+        .control-item { display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; padding: 12px; text-decoration: none; color: white; font-weight: 600; }
+        select, input[type="color"] { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; color: white; font-size: 16px; padding: 12px; font-family: inherit; }
+        select option { color: black; background: white; }
+        input[type="color"] { height: 48px; padding: 5px; }
+        #status { margin-bottom: 20px; color: white; text-align: center; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 24px; width: 100%; }
+        .spinner { display: none; width: 16px; height: 16px; border: 3px solid white; border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner.active { display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .laptop-container { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 450px; padding: 20px; background-size: cover; background-position: center; overflow: visible; box-sizing: border-box; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1003; backdrop-filter: blur(10px); }
+        .modal.active { display: flex; }
+        .modal-content { max-width: 400px; width: 90%; }
+        .modal-content button { display: block; width: 100%; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <!-- Main Site Animated Background -->
+    <div class="bg-shapes">
+        <div class="shape">Auronuel</div><div class="shape"></div><div class="shape">Auronuel</div>
+        <div class="shape"></div><div class="shape">Auronuel</div><div class="shape"></div>
+    </div>
+
+    <!-- NEW SIMPLE HEADER WITH BACK BUTTON -->
+    <header class="tool-header">
+        <div class="container tool-header-container">
+            <a href="javascript:history.back()" class="back-button"><i class="fas fa-arrow-left"></i><span>Back</span></a>
+            <div class="logo"><div class="logo-icon"><img src="images/auro.png" alt=""></div><span>Auronuel</span></div>
+            <div class="header-spacer"></div>
+        </div>
+    </header>
+
+    <!-- Page Content for Laptop Mockup Tool -->
+    <div id="laptop-mockup-page" class="page active">
+        <div class="container">
+            <div class="mockup-content">
+                <h1 class="mockup-title">Laptop Mockup Generator</h1>
+
+                <!-- Controls Section -->
+                <section class="glass" style="padding: 30px; margin-bottom: 40px;">
+                    <div id="status">
+                        <span id="status-text">Select a layout and click a screen to upload media.</span>
+                        <span class="spinner"></span>
+                    </div>
+                    <div class="controls-grid">
+                        <div class="control-group"><label for="laptop-select">Laptop Model</label><select id="laptop-select"><option value="laptop-modern-black">Laptop (Modern Black)</option><option value="laptop-modern-blue">Laptop (Modern Blue)</option><!--<option value="laptop-perspective-silver">Laptop (Perspective Silver)</option>--></select></div>
+                        <div class="control-group"><label for="download-btn">Actions</label><a href="#" id="download-btn" class="control-item glass"><i class="fas fa-download"></i><span>Download</span></a></div>
+                        <div class="control-group"><label for="background-type-select">Background Type</label><select id="background-type-select"><option value="color">Solid Color BG</option><option value="image">Upload Image BG</option><optgroup label="Gradients"><option value="gradient_sunset">Sunset Gradient</option><option value="gradient_ocean">Ocean Gradient</option></optgroup><optgroup label="Neon"><option value="neon_pink">Neon Pink</option><option value="neon_green">Neon Green</option><option value="neon_blue">Neon Blue</option><option value="neon_orange">Neon Orange</option><option value="neon_purple">Neon Purple</option></optgroup><optgroup label="Glassmorphism"><option value="glass_aurora">Aurora Glass</option><option value="glass_crystal">Crystal Glass</option><option value="glass_frost">Frost Glass</option><option value="glass_aqua">Aqua Glass</option><option value="glass_ruby">Ruby Glass</option></optgroup></select></div>
+                        <div class="control-group"><label for="background-color">Background Color</label><input type="color" id="background-color" value="#ffffff" title="Background Color" /></div>
+                    </div>
+                </section>
+                
+                <!-- Laptop Preview Section -->
+                <section class="glass">
+                    <div class="laptop-container" id="laptop-container">
+                        <div class="laptop-layout" id="laptop-modern-black"><div class="laptop laptop-modern-black"><div class="screen-frame"><div class="webcam"></div><div class="screen">Click to upload</div></div><div class="base"><div class="notch"></div></div></div></div>
+                        <div class="laptop-layout" id="laptop-modern-blue" style="display: none;"><div class="laptop laptop-modern-blue"><div class="screen-frame"><div class="webcam"></div><div class="screen">Click to upload</div></div><div class="base"><div class="notch"></div></div></div></div>
+                        <div class="laptop-layout" id="laptop-perspective-silver" style="display: none;"><div class="laptop laptop-perspective-silver"><div class="screen-frame"><div class="webcam"></div><div class="screen">Click to upload</div></div><div class="base"><div class="keyboard"></div><div class="trackpad"></div></div></div></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Site Footer -->
+    <div id="footer">
+        <div class="container">
+            <footer class="glass">
+                <div class="footer-content">
+                    <div class="team-social">
+                        <a href="https://youtube.com/@auronuel?si=YTkcGZIeB_3QGJHg" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://vm.tiktok.com/ZMSgSY3Lu/" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.facebook.com/share/16GXGeZVyk/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://t.me/emmanuelsenya" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+                    </div>
+                    <div class="copyright">&copy; 2025 Auronuel. All rights reserved.</div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Hidden elements required for functionality -->
+    <input type="file" id="media-upload" accept="image/*,video/*" /><input type="file" id="background-upload" accept="image/*" /><canvas id="render-canvas"></canvas>
+    <div class="modal" id="download-modal"><div class="modal-content glass"><i class="fas fa-times modal-close" id="download-modal-close" style="color:white; align-self:flex-end;"></i><h2 style="color:white;">Download Options</h2><button id="download-medium-btn" class="product-button glass">Medium PNG (1x)</button><button id="download-high-btn" class="product-button glass">High Quality PNG (2x)</button><button id="download-video-mockup-btn" class="product-button glass" style="display: none;">Video Mockup (MP4)</button><button id="download-video-png-btn" class="product-button glass" style="display: none;">Video Snapshot (PNG)</button><p id="video-note" style="display: none; font-size: 12px; color: white;">Note: Video mockups have sound. Use Snapshot for a static image.</p></div></div>
+
+    <!-- Original Mockup Tool JS -->
+    <script defer>
+const laptopSelect = document.getElementById('laptop-select');
+const laptopLayouts = {
+    'laptop-modern-black': document.getElementById('laptop-modern-black'),
+    'laptop-modern-blue': document.getElementById('laptop-modern-blue'),
+    'laptop-perspective-silver': document.getElementById('laptop-perspective-silver')
+};
+const allScreens = document.querySelectorAll('.screen');
+const mediaUpload = document.getElementById('media-upload');
+const downloadBtn = document.getElementById('download-btn');
+const statusTextEl = document.getElementById('status-text');
+const spinner = document.querySelector('#status .spinner');
+const downloadModal = document.getElementById('download-modal');
+const downloadModalClose = document.getElementById('download-modal-close');
+const downloadMediumBtn = document.getElementById('download-medium-btn');
+const downloadHighBtn = document.getElementById('download-high-btn');
+const downloadVideoMockupBtn = document.getElementById('download-video-mockup-btn');
+const downloadVideoPngBtn = document.getElementById('download-video-png-btn');
+const videoNote = document.getElementById('video-note');
+const backgroundColorPicker = document.getElementById('background-color');
+const backgroundTypeSelect = document.getElementById('background-type-select');
+const backgroundUpload = document.getElementById('background-upload');
+const laptopContainer = document.getElementById('laptop-container');
+let currentFile = null; let backgroundType = 'color'; let backgroundImage = null; let lastClickedScreen = null;
+
+function updateLaptopDisplay() { const selected = laptopSelect.value; Object.keys(laptopLayouts).forEach(key => { if (laptopLayouts[key]) { laptopLayouts[key].style.display = key === selected ? 'flex' : 'none'; } }); }
+function openModal(modal) { modal.classList.add('active'); }
+function closeModal(modal) { modal.classList.remove('active'); }
+function redrawLivePreview() {
+    const tempCanvas = document.createElement('canvas');
+    const containerRect = laptopContainer.getBoundingClientRect();
+    tempCanvas.width = containerRect.width;
+    tempCanvas.height = containerRect.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    drawBackground(tempCtx, tempCanvas.width, tempCanvas.height);
+    laptopContainer.style.backgroundImage = `url(${tempCanvas.toDataURL()})`;
+    laptopContainer.style.backgroundColor = 'transparent';
+}
+
+function handleMediaUpload(e) {
+    const file = e.target.files[0];
+    if (!file || !lastClickedScreen) return;
+    currentFile = file;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const url = event.target.result;
+        lastClickedScreen.innerHTML = '';
+        if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = url;
+            lastClickedScreen.appendChild(img);
+        } else if (file.type.startsWith('video/')) {
+            const video = document.createElement('video');
+            video.src = url;
+            video.autoplay = true;
+            video.loop = true;
+            video.muted = true; // Autoplay is more reliable when muted
+            lastClickedScreen.appendChild(video);
+        }
+    };
+    reader.readAsDataURL(file);
+    mediaUpload.value = '';
+}
+
+async function downloadMockupWithHtml2Canvas(scale = 2) {
+    statusTextEl.textContent = `Generating ${scale}x PNG...`;
+    spinner.classList.add('active');
+    redrawLivePreview();
+    try {
+        await new Promise(resolve => setTimeout(resolve, 200)); // Short delay for redraw
+        const canvas = await html2canvas(laptopContainer, {
+            scale: scale,
+            backgroundColor: null,
+            useCORS: true,
+            allowTaint: true,
+            // Key fix: remove 3D transforms before rendering, as html2canvas struggles with them
+            // Key fix: remove 3D transforms and restyle the base for a clean 2D render.
+onclone: (clonedDoc) => {
+    const perspectiveLaptop = clonedDoc.querySelector('.laptop-perspective-silver');
+    if (perspectiveLaptop) {
+        perspectiveLaptop.style.perspective = 'none';
+        const base = perspectiveLaptop.querySelector('.base');
+        if (base) {
+            // Flatten the element by removing the 3D rotation which html2canvas cannot render.
+            base.style.transform = 'none';
+
+            // Adjust the height for a flat 2D view. The original height (280px) was for the perspective effect.
+            base.style.height = '16px';
+
+            // Set a new margin to correctly position the base below the screen.
+            // The previous value of '-20px' was causing it to be hidden. This new value ensures it is visible.
+            base.style.marginTop = '-8px';
+            
+            // Make the base slightly wider than the screen for a more realistic look,
+            // similar to the other laptop models.
+            base.style.width = '105%';
+            base.style.left = '-2.5%';
+        }
+    }
+}
+        });
+        downloadBlob(canvas.toDataURL('image/png', 1.0), 'png');
+        statusTextEl.textContent = 'Mockup downloaded!';
+    } catch (err) {
+        console.error('html2canvas failed:', err);
+        statusTextEl.textContent = 'Failed to generate mockup.';
+    } finally {
+        spinner.classList.remove('active');
+        closeModal(downloadModal);
+    }
+}
+
+function downloadBlob(blobOrUrl, extension) { const a = document.createElement('a'); a.href = (typeof blobOrUrl === 'string') ? blobOrUrl : URL.createObjectURL(blobOrUrl); a.download = `${laptopSelect.value}-mockup.${extension}`; a.click(); if (typeof blobOrUrl !== 'string') URL.revokeObjectURL(a.href); }
+function drawBackground(ctx, width, height) { ctx.clearRect(0, 0, width, height); switch (backgroundType) { case 'image': if (backgroundImage) ctx.drawImage(backgroundImage, 0, 0, width, height); else { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, width, height); } break; case 'gradient_sunset': const s = ctx.createLinearGradient(0,0,width,height); s.addColorStop(0,'#ff9a9e'); s.addColorStop(1,'#fad0c4'); ctx.fillStyle=s; ctx.fillRect(0,0,width,height); break; case 'gradient_ocean': const o = ctx.createLinearGradient(0,0,width,height); o.addColorStop(0,'#2193b0'); o.addColorStop(1,'#6dd5ed'); ctx.fillStyle=o; ctx.fillRect(0,0,width,height); break; case 'neon_pink': ctx.fillStyle = '#ff00ff'; ctx.fillRect(0, 0, width, height); break; case 'neon_green': ctx.fillStyle = '#39ff14'; ctx.fillRect(0, 0, width, height); break; case 'neon_blue': ctx.fillStyle = '#1f51ff'; ctx.fillRect(0, 0, width, height); break; case 'neon_orange': ctx.fillStyle = '#ff5f00'; ctx.fillRect(0, 0, width, height); break; case 'neon_purple': ctx.fillStyle = '#8a2be2'; ctx.fillRect(0, 0, width, height); break; case 'glass_aurora': const auroraGrad = ctx.createLinearGradient(0, 0, width, height); auroraGrad.addColorStop(0, '#ff00ff'); auroraGrad.addColorStop(1, '#00ffff'); ctx.fillStyle = auroraGrad; ctx.fillRect(0, 0, width, height); break; case 'glass_crystal': const crystalGrad = ctx.createLinearGradient(0, 0, width, height); crystalGrad.addColorStop(0, '#e0e0e0'); crystalGrad.addColorStop(1, '#a0a0a0'); ctx.fillStyle = crystalGrad; ctx.fillRect(0, 0, width, height); break; case 'glass_frost': const frostGrad = ctx.createLinearGradient(0, height, width, 0); frostGrad.addColorStop(0, '#e6dada'); frostGrad.addColorStop(1, '#274046'); ctx.fillStyle = frostGrad; ctx.fillRect(0, 0, width, height); break; case 'glass_aqua': const aquaGrad = ctx.createLinearGradient(0, 0, width, height); aquaGrad.addColorStop(0, '#1fa2ff'); aquaGrad.addColorStop(0.5, '#12d8fa'); aquaGrad.addColorStop(1, '#a6ffcb'); ctx.fillStyle = aquaGrad; ctx.fillRect(0, 0, width, height); break; case 'glass_ruby': const rubyGrad = ctx.createLinearGradient(0, 0, width, 0); rubyGrad.addColorStop(0, '#ff416c'); rubyGrad.addColorStop(1, '#ff4b2b'); ctx.fillStyle = rubyGrad; ctx.fillRect(0, 0, width, height); break; case 'color': default: ctx.fillStyle = backgroundColorPicker.value; ctx.fillRect(0, 0, width, height); break; } }
+
+laptopSelect.addEventListener('change', updateLaptopDisplay);
+allScreens.forEach(s => s.addEventListener('click', (e) => { lastClickedScreen = e.currentTarget; mediaUpload.click(); }));
+mediaUpload.addEventListener('change', handleMediaUpload);
+backgroundTypeSelect.addEventListener('change', (e) => { backgroundType = e.target.value; const colorPickerGroup = backgroundColorPicker.parentElement; colorPickerGroup.style.display = (backgroundType === 'color') ? 'flex' : 'none'; if (backgroundType === 'image') { backgroundUpload.click(); } else { backgroundImage = null; redrawLivePreview(); } });
+backgroundColorPicker.addEventListener('input', redrawLivePreview);
+backgroundUpload.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { const img = new Image(); img.onload = () => { backgroundImage = img; redrawLivePreview(); }; img.src = event.target.result; }; reader.readAsDataURL(file); });
+downloadBtn.addEventListener('click', () => openModal(downloadModal));
+downloadModalClose.addEventListener('click', () => closeModal(downloadModal));
+downloadMediumBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(1));
+downloadHighBtn.addEventListener('click', () => downloadMockupWithHtml2Canvas(2));
+updateLaptopDisplay();
+redrawLivePreview();
+document.getElementById('background-color').parentElement.style.display = (backgroundTypeSelect.value === 'color') ? 'flex' : 'none';
+const hamburger = document.getElementById('hamburger-menu');
+const overlay = document.querySelector('.sidebar-overlay');
+hamburger.addEventListener('click', () => { document.body.classList.toggle('sidebar-open'); });
+overlay.addEventListener('click', () => { document.body.classList.remove('sidebar-open'); });
+</script>
+</body>
+</html>

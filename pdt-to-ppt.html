@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auronuel - PDF to Presentation</title>
+    
+    <!-- Main Site's CSS and FontAwesome (in Head for styling) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="templatemo-glossy-touch.css">
+  
+    <style>
+        /* ======================================================= */
+        /*          STYLES FOR THE TOOL (NO CHANGES HERE)          */
+        /* ======================================================= */
+        .tool-header { padding: 20px 0; position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        .tool-header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .back-button { display: flex; align-items: center; gap: 8px; color: white; text-decoration: none; font-size: 1rem; font-weight: 500; padding: 10px 15px; border-radius: 10px; transition: background 0.3s ease; }
+        .back-button:hover { background: rgba(255, 255, 255, 0.15); }
+        .back-button i { font-size: 1.1rem; }
+        .header-spacer { width: 90px; }
+        .tool-header .logo { cursor: default; }
+        .mockup-content { padding: 40px 0; }
+        .main-layout { display: flex; flex-direction: column; gap: 30px; width: 100%; }
+        .controls-panel { display: flex; flex-direction: column; gap: 20px; max-width: 600px; margin: 0 auto; }
+        .control-group { display: flex; flex-direction: column; gap: 10px; padding: 20px; }
+        .control-group h3 { margin: 0 0 10px 0; color: white; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .control-group label { font-size: 1rem; font-weight: 500; color: white; }
+        .control-item { display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; color: white; font-weight: bold; transition: all 0.2s ease; padding: 15px; }
+        .control-item:disabled { cursor: not-allowed; opacity: 0.5; }
+        .control-item i { margin-right: 8px; }
+        #status { margin-bottom: 20px; color: white; text-align: center; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 24px; width: 100%; padding: 12px; }
+        .spinner { display: none; width: 16px; height: 16px; border: 3px solid white; border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner.active { display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .how-to-guide { padding: 30px; }
+        .how-to-guide h2 { text-align: center; color: white; margin-top: 0; margin-bottom: 25px; font-size: 1.5rem; }
+        .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center; }
+        .step i { font-size: 2rem; color: white; margin-bottom: 10px; }
+        .step h3 { margin: 0 0 5px 0; font-size: 1rem; color: white; }
+        .step p { margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.8); line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <!-- Main Site Animated Background -->
+    <div class="bg-shapes">
+        <div class="shape">Auronuel</div><div class="shape"></div><div class="shape">Auronuel</div>
+        <div class="shape"></div><div class="shape">Auronuel</div><div class="shape"></div>
+    </div>
+
+    <!-- SIMPLE HEADER WITH BACK BUTTON -->
+    <header class="tool-header">
+        <div class="container tool-header-container">
+            <a href="javascript:history.back()" class="back-button"><i class="fas fa-arrow-left"></i><span>Back</span></a>
+            <div class="logo"><div class="logo-icon"><img src="images/auro.png" alt=""></div><span>Auronuel</span></div>
+            <div class="header-spacer"></div>
+        </div>
+    </header>
+
+    <!-- Page Content for Tool -->
+    <div class="page active">
+        <div class="container">
+            <div class="mockup-content">
+                <section id="status" class="glass">
+                    <span id="status-text">Upload your document to begin.</span>
+                    <span class="spinner"></span>
+                </section>
+
+                <div class="main-layout">
+                    <div class="controls-panel">
+                        <div class="control-group glass">
+                            <h3>1. Upload Document</h3>
+                            <label for="doc-upload-btn">Document (PDF)</label>
+                            <button id="doc-upload-btn" class="control-item glass"><i class="fas fa-upload"></i> Upload Document</button>
+                        </div>
+                        
+                        <div class="control-group glass">
+                            <h3>2. Generate Presentation</h3>
+                            <button id="generate-btn" class="control-item glass" disabled><i class="fas fa-magic"></i> Generate PPTX</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <section class="how-to-guide glass" style="margin-top: 40px;">
+                    <h2>How to Convert Document to Presentation</h2>
+                    <div class="steps-container">
+                        <div class="step"><i class="fas fa-file-upload"></i><h3>1. Upload Document</h3><p>Click "Upload Document" and select a PDF file.</p></div>
+                        <div class="step"><i class="fas fa-magic"></i><h3>2. Generate</h3><p>Click "Generate PPTX" to create the presentation.</p></div>
+                        <div class="step"><i class="fas fa-download"></i><h3>3. Download</h3><p>The PPTX file will be downloaded automatically.</p></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Site Footer -->
+    <div id="footer"><!-- ... your footer ... --></div>
+
+    <!-- Hidden elements required for functionality -->
+    <input type="file" id="doc-upload-input" accept="application/pdf" style="display: none;" />
+
+    <!-- ================================================================== */
+    /*    CORRECTED SCRIPT URLS AT END OF BODY                              */
+    /* ================================================================== */
+    
+    <!--PDF.js Library from CDNJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    
+    <!-- PptxGenJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    
+    <!-- Tool JS (Runs AFTER libraries are loaded) -->
+    <script>
+        // --- UI Elements ---
+        const statusText = document.getElementById('status-text');
+        const spinner = document.querySelector('#status .spinner');
+        const docUploadBtn = document.getElementById('doc-upload-btn');
+        const docUploadInput = document.getElementById('doc-upload-input');
+        const generateBtn = document.getElementById('generate-btn');
+
+        // --- State ---
+        let pdfFileContent = null;
+
+        // --- Utility Functions ---
+        const setStatus = (text, showSpinner = false) => {
+            statusText.textContent = text;
+            spinner.classList.toggle('active', showSpinner);
+        };
+
+        // --- Library Check and Setup ---
+        window.onload = () => {
+            if (typeof pdfjsLib === 'undefined' || typeof PptxGenJS === 'undefined') {
+                setStatus('Critical Error: A library failed to load. Please refresh.');
+                console.error('A required library (PDF.js or PptxGenJS) is not defined.');
+                return;
+            }
+            
+            // **THE CRITICAL FIX:** Set the correct worker source URL from the new CDN
+            pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js`;
+
+            // Attach event listeners now that libraries are confirmed to be loaded
+            docUploadBtn.addEventListener('click', () => docUploadInput.click());
+            docUploadInput.addEventListener('change', handleDocUpload);
+            generateBtn.addEventListener('click', generatePPTX);
+        };
+        
+        // --- Handle Document Upload ---
+        function handleDocUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            setStatus('File selected. Ready to generate.');
+            const fileReader = new FileReader();
+            fileReader.onload = function() {
+                pdfFileContent = new Uint8Array(this.result);
+                generateBtn.disabled = false;
+            };
+            fileReader.readAsArrayBuffer(file);
+        }
+
+        // --- Generate PPTX from PDF content ---
+        async function generatePPTX() {
+            if (!pdfFileContent) {
+                setStatus('Please upload a document first.');
+                return;
+            }
+
+            setStatus('Reading PDF and generating presentation...', true);
+            generateBtn.disabled = true;
+
+            try {
+                const pptx = new PptxGenJS();
+                const loadingTask = pdfjsLib.getDocument(pdfFileContent);
+                const pdf = await loadingTask.promise;
+                const totalPages = pdf.numPages;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const slide = pptx.addSlide();
+                    
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    slide.addText(pageText, { 
+                        x: 0.5, y: 0.5, w: '90%', h: '90%', 
+                        fontSize: 12, align: 'left', bullet: false 
+                    });
+                }
+                
+                await pptx.writeFile({ fileName: 'Auronuel_Presentation.pptx' });
+                setStatus('Presentation generated and downloaded!');
+
+            } catch (err) {
+                console.error('Error during generation:', err);
+                setStatus('An error occurred during generation.');
+            } finally {
+                spinner.classList.remove('active');
+                generateBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
