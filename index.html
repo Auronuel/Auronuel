@@ -4,9 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hipliz Technologies</title>
-    <meta name="description" content="Hipliz Technologies builds software products — starting with Hipliz AI. We're building a portfolio of apps and tools for businesses and everyday problems.">
+    <meta name="description" content="Hipliz Technologies builds software products — starting with Hipliz AI. Browse our products and tools, or hire us to build yours.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <link rel="stylesheet" href="templatemo-glossy-touch.css">
+    <style>
+        /* Product carousel — self-contained so it doesn't depend on the theme CSS */
+        .product-carousel-wrap { position: relative; margin: 0 0 10px; }
+        .product-carousel-track {
+            display: flex;
+            gap: 18px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 6px 4px 18px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .product-carousel-track::-webkit-scrollbar { height: 6px; }
+        .product-carousel-track::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 10px; }
+
+        .product-slide {
+            scroll-snap-align: start;
+            flex: 0 0 auto;
+            width: 260px;
+            display: flex;
+            flex-direction: column;
+            padding: 22px;
+            border-radius: 18px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s ease;
+        }
+        .product-slide:hover { transform: translateY(-4px); }
+
+        .product-slide-flagship {
+            width: 300px;
+            border: 2px solid rgba(28,140,255,0.5);
+        }
+        .product-slide-badge {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(28,140,255,0.18);
+            color: #6cb2ff;
+            width: fit-content;
+            margin-bottom: 10px;
+        }
+        .product-slide h3 { margin: 0 0 8px; font-size: 1.05rem; }
+        .product-slide p { margin: 0; font-size: 13.5px; opacity: 0.8; line-height: 1.5; flex: 1; }
+        .product-slide-cta { margin-top: 14px; font-size: 13px; font-weight: 700; }
+
+        .carousel-nav-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .carousel-nav-btn {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .carousel-nav-btn:hover { background: rgba(255,255,255,0.14); }
+
+        .products-section-head { margin-bottom: 14px; }
+        .products-section-head h1 { margin-bottom: 6px; }
+    </style>
 </head>
 <body>
     <div class="bg-shapes">
@@ -49,29 +118,82 @@
     <div id="home" class="page active">
         <div class="container">
             <div class="content-wrapper">
+
+                <!-- Short hero -->
                 <section class="hero glass">
-                    <div class="hero-image">
-                        <img src="images/templatemo-futuristic-girl.jpg" alt="Modern Technology Interaction" />
-                    </div>
                     <div class="hero-content">
                         <h1>We build software products.</h1>
-                        <p>Hipliz Technologies is a product house — we design, build, and launch our own apps and tools, starting with Hipliz AI. This is where every product we build lives under one roof.</p>
+                        <p>Hipliz Technologies is a product house. Below is everything we've built so far — starting with our flagship, Hipliz AI.</p>
                     </div>
                 </section>
 
-                <!-- Flagship Product Spotlight -->
-                <section class="hero glass">
-                    <div class="hero-content">
-                        <h1>🚀 Flagship Product: Hipliz AI</h1>
-                        <p>A no-code platform that lets any business build and deploy a custom AI chat assistant — trained on their own website, documents, or notes — in minutes. No developer required.</p>
-                        <a href="https://hiplizai.com" target="_blank" class="product-button glass" style="display:inline-block; margin-top:14px;">Visit Hipliz AI →</a>
-                    </div>
+                <!-- PRODUCTS FIRST: carousel -->
+                <section class="hero glass products-section-head">
+                    <h1>Our Products & Tools</h1>
+                    <p>Scroll through what we've built under Hipliz Technologies.</p>
                 </section>
 
-                <!-- What We Build Section -->
+                <div class="product-carousel-wrap">
+                    <div class="carousel-nav-row">
+                        <button class="carousel-nav-btn" id="carousel-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                        <button class="carousel-nav-btn" id="carousel-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="product-carousel-track" id="product-carousel-track">
+                        <a href="https://hiplizai.com" target="_blank" class="product-slide product-slide-flagship glass">
+                            <span class="product-slide-badge">Flagship</span>
+                            <h3>🤖 Hipliz AI</h3>
+                            <p>No-code platform that lets any business build and deploy a custom AI chat assistant in minutes — no developer required.</p>
+                            <span class="product-slide-cta">Visit hiplizai.com →</span>
+                        </a>
+
+                        <a href="phonemockup.html" class="product-slide glass">
+                            <span class="product-slide-badge">Tool</span>
+                            <h3>📱 Phone Mockup</h3>
+                            <p>Generate clean device mockups for your app screenshots and presentations.</p>
+                            <span class="product-slide-cta">Open tool →</span>
+                        </a>
+
+                        <a href="laptopmockup.html" class="product-slide glass">
+                            <span class="product-slide-badge">Tool</span>
+                            <h3>💻 Laptop Mockup</h3>
+                            <p>Drop your screenshots into a laptop frame for cleaner portfolio and pitch visuals.</p>
+                            <span class="product-slide-cta">Open tool →</span>
+                        </a>
+
+                        <a href="tabletmockup.html" class="product-slide glass">
+                            <span class="product-slide-badge">Tool</span>
+                            <h3>📲 Tablet Mockup</h3>
+                            <p>Same idea, tablet frame — quick, clean device mockups in your browser.</p>
+                            <span class="product-slide-cta">Open tool →</span>
+                        </a>
+
+                        <a href="logoto3d.html" class="product-slide glass">
+                            <span class="product-slide-badge">Tool</span>
+                            <h3>🧊 Logo to 3D Model</h3>
+                            <p>Turn a flat logo into a 3D-style render for branding and presentations.</p>
+                            <span class="product-slide-cta">Open tool →</span>
+                        </a>
+
+                        <a href="pdt-to-ppt.html" class="product-slide glass">
+                            <span class="product-slide-badge">Tool</span>
+                            <h3>📄 PDF to PowerPoint</h3>
+                            <p>Convert a PDF into an editable PowerPoint deck in a few clicks.</p>
+                            <span class="product-slide-cta">Open tool →</span>
+                        </a>
+
+                        <a href="https://datatradegh.com" target="_blank" class="product-slide glass">
+                            <span class="product-slide-badge">Product</span>
+                            <h3>📶 DataTradeGH</h3>
+                            <p>Buy mobile data bundles quickly and reliably — a digital product built and run under Hipliz Technologies.</p>
+                            <span class="product-slide-cta">Visit datatradegh.com →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- We also build for others -->
                 <section class="hero glass">
-                    <h1>What We Build</h1>
-                    <p>We're building a portfolio of focused products — not one-off client projects. Each tool solves a specific, real problem.</p>
+                    <h1>Need something built?</h1>
+                    <p>Everything above is a product we built and own. We also build custom products for other people and businesses — the same way we built our own.</p>
                 </section>
 
                 <section class="services-grid">
@@ -80,7 +202,7 @@
                             <div class="service-icon">🤖</div>
                             <h3>AI & SaaS Products</h3>
                         </div>
-                        <p>End-to-end AI-powered platforms built for real business use — like Hipliz AI, our flagship no-code assistant builder.</p>
+                        <p>End-to-end AI-powered platforms, built the way we built Hipliz AI.</p>
                         <ul class="service-features">
                             <li>AI chat assistants & automation</li>
                             <li>No-code SaaS platforms</li>
@@ -93,7 +215,7 @@
                             <div class="service-icon">🧰</div>
                             <h3>Business Tools & Utilities</h3>
                         </div>
-                        <p>Small, focused tools that solve one problem well — from mockup generators to document converters.</p>
+                        <p>Small, focused tools that solve one problem well.</p>
                         <ul class="service-features">
                             <li>Mockup & design tools</li>
                             <li>File & document converters</li>
@@ -106,7 +228,7 @@
                             <div class="service-icon">💻</div>
                             <h3>Web & Mobile Apps</h3>
                         </div>
-                        <p>Full-stack products, built and shipped by our own team — frontend, backend, and everything in between.</p>
+                        <p>Full-stack products, built end to end.</p>
                         <ul class="service-features">
                             <li>Frontend & backend development (PHP & JavaScript)</li>
                             <li>Mobile app development (React Native)</li>
@@ -278,5 +400,18 @@
     </div>
 
     <script src="templatemo-glossy-touch.js"></script>
+    <script>
+        (function() {
+            const track = document.getElementById('product-carousel-track');
+            const prevBtn = document.getElementById('carousel-prev');
+            const nextBtn = document.getElementById('carousel-next');
+            if (!track) return;
+
+            const scrollAmount = () => track.querySelector('.product-slide').offsetWidth + 18;
+
+            prevBtn.addEventListener('click', () => track.scrollBy({ left: -scrollAmount(), behavior: 'smooth' }));
+            nextBtn.addEventListener('click', () => track.scrollBy({ left: scrollAmount(), behavior: 'smooth' }));
+        })();
+    </script>
 </body>
 </html>
